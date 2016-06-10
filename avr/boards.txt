@@ -3,14 +3,17 @@
 meetjestad.name=Meet je stad
 
 meetjestad.upload.protocol=arduino
-meetjestad.upload.maximum_size=30720
+meetjestad.upload.maximum_size=32256
 meetjestad.upload.speed=57600
 
+# RC oscillator 8Mhz, max start-up time (0xA2 with CKOUT)
 meetjestad.bootloader.low_fuses=0xE2
-meetjestad.bootloader.high_fuses=0xDA
+# SPI enable, boot into bootloader, 512 byte bootloader, EESAVE
+meetjestad.bootloader.high_fuses=0xD6
+# brown-out detection at 2.7V
 meetjestad.bootloader.extended_fuses=0x05
 
-meetjestad.bootloader.file=atmega/ATmegaBOOT_168_atmega328_pro_8MHz.hex
+meetjestad.bootloader.file=optiboot_atmega328p_8Mhz_57600.hex
 meetjestad.bootloader.unlock_bits=0x3F
 meetjestad.bootloader.lock_bits=0x0F
 
