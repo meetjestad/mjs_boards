@@ -4,6 +4,8 @@ mjsv1.name=MJS meetplatform v1
 
 mjsv1.upload.protocol=arduino
 mjsv1.upload.maximum_size=32256
+mjsv1.upload.maximum_data_size=2048
+
 mjsv1.upload.speed=57600
 
 # RC oscillator 8Mhz, max start-up time (0xA2 with CKOUT)
