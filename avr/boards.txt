@@ -1,4 +1,5 @@
 ##############################################################
+# This file is licensed under the CC0 1.0 universal license
 
 mjsv1.name=MJS meetplatform v1
 
