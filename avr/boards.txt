@@ -1,7 +1,7 @@
 ##############################################################
 # This file is licensed under the CC0 1.0 universal license
 
-mjsv1.name=MJS meetplatform v1
+mjsv1.name=MJS meetstation
 
 mjsv1.upload.protocol=arduino
 mjsv1.upload.maximum_size=32256
