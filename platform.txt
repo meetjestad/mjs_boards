@@ -17,8 +17,8 @@
 # For more info:
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
-name=Tlera Corp STM32L0 Boards
-version=1.6.18
+name=KITT Engineering STM32L0 Boards
+version=0.1.0
 
 # Compile variables
 # -----------------
@@ -29,7 +29,7 @@ compiler.warning_flags.default=
 compiler.warning_flags.more=-Wall
 compiler.warning_flags.all=-Wall -Wextra
 
-compiler.path={runtime.tools.arm-none-eabi-gcc-4.8.3-2014q1.path}/bin/
+compiler.path={runtime.tools.arm-none-eabi-gcc.path}/bin/
 compiler.c.cmd=arm-none-eabi-gcc
 compiler.c.flags=-mcpu={build.mcu} -mthumb -c -g {build.flags.optimize} {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -nostdlib -MMD
 compiler.c.elf.cmd=arm-none-eabi-gcc

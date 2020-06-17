@@ -1,0 +1,39 @@
+{
+  "packages": [
+    {
+      "name": "TleraCorp / KITT Engineering",
+      "maintainer": "KITT Engineering",
+      "websiteURL": "https://github.com/kittengineering/ArduinoCore-stm32l0",
+      "email": "software@kitt.nl",
+      "help": {
+        "online": "https://github.com/kittengineering/ArduinoCore-stm32l0/issues"
+      },
+      "platforms": [
+       {
+          "name": "KITT Engineering STM32L0 Boards",
+          "architecture": "stm32l0",
+          "version": "0.1.0",
+          "category": "Contributed",
+          "url": "https://github.com/kittengineering/ArduinoCore-stm32l0/archive/0.1.0.tar.gz",
+          "archiveFileName": "ArduinoCore-stm32l0-0.1.0.tar.gz",
+          "checksum": "MD5:eecfd6198fa454b6dbc3149b2eebec3f",
+          "size": "9758702",
+          "boards": [
+            {"name": "B-L072Z-LRWAN1"}
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "arduino",
+              "name": "arm-none-eabi-gcc",
+              "version": ""
+            }
+          ]
+        }
+
+
+      ],
+      "tools": [
+      ]
+    }
+  ]
+}
