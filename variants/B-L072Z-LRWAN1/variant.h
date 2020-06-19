@@ -37,6 +37,10 @@
 #define STM32L0_CONFIG_HSECLK             0
 #define STM32L0_CONFIG_SYSOPT             0
 
+#define STM32L0_CONFIG_PIN_VBUS           STM32L0_GPIO_PIN_NONE
+
+#define USBCON
+
 /** Master clock frequency */
 #define VARIANT_MCK                       F_CPU
 
@@ -45,6 +49,7 @@
  *----------------------------------------------------------------------------*/
 
 #ifdef __cplusplus
+#include "USBAPI.h"
 #include "Uart.h"
 #endif // __cplusplus
 
@@ -58,7 +63,7 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (22u)
+#define PINS_COUNT           (24u)
 #define NUM_DIGITAL_PINS     (16u)
 #define NUM_ANALOG_INPUTS    (6u)
 #define NUM_ANALOG_OUTPUTS   (0u)
@@ -99,13 +104,13 @@ static const uint8_t BUTTON = PIN_BUTTON;
  * Serial interfaces
  */
 
-#define SERIAL_INTERFACES_COUNT 2
+#define SERIAL_INTERFACES_COUNT 3
 
-#define PIN_SERIAL_RX        (0ul)
-#define PIN_SERIAL_TX        (1ul)
+#define PIN_SERIAL1_RX        (0ul)
+#define PIN_SERIAL1_TX        (1ul)
 
-#define PIN_SERIAL1_RX       (2ul)
-#define PIN_SERIAL1_TX       (8ul)
+#define PIN_SERIAL2_RX       (2ul)
+#define PIN_SERIAL2_TX       (8ul)
 
 /*
  * SPI Interfaces
@@ -132,6 +137,9 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
 
+#define PIN_USB_DM           (22ul)
+#define PIN_USB_DP           (23ul)
+
 
 #define PWM_INSTANCE_COUNT    1
 
@@ -144,8 +152,9 @@ static const uint8_t SCL = PIN_WIRE_SCL;
  *----------------------------------------------------------------------------*/
 
 #ifdef __cplusplus
-extern Uart Serial;
+extern CDC  SerialUSB;
 extern Uart Serial1;
+extern Uart Serial2;
 #endif
 
 // These serial port names are intended to allow libraries and architecture-neutral
@@ -163,10 +172,14 @@ extern Uart Serial1;
 //
 // SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
 //                            pins are NOT connected to anything by default.
-#define SERIAL_PORT_MONITOR         Serial
-#define SERIAL_PORT_HARDWARE1       Serial
-#define SERIAL_PORT_HARDWARE2       Serial1
+#define SERIAL_PORT_USBVIRTUAL      SerialUSB
+#define SERIAL_PORT_MONITOR         SerialUSB
+#define SERIAL_PORT_HARDWARE1       Serial1
+#define SERIAL_PORT_HARDWARE2       Serial2
 #define SERIAL_PORT_HARDWARE_OPEN2  Serial1
+
+// Alias Serial to SerialUSB
+#define Serial                      SerialUSB
 
 #endif /*_VARIANT_B_L072Z_LRWAN1_STM32L072CZ_ */
 

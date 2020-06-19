@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2017-2019 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -88,10 +88,11 @@ typedef void (*stm32l0_i2c_done_callback_t)(void *context);
 #define STM32L0_I2C_STATE_SUSPENDED                  3
 #define STM32L0_I2C_STATE_MASTER_STOP                4
 #define STM32L0_I2C_STATE_MASTER_RESTART             5
-#define STM32L0_I2C_STATE_MASTER_TRANSMIT            6
-#define STM32L0_I2C_STATE_MASTER_RECEIVE             7
-#define STM32L0_I2C_STATE_SLAVE_TRANSMIT             8
-#define STM32L0_I2C_STATE_SLAVE_RECEIVE              9
+#define STM32L0_I2C_STATE_MASTER_NACK                6
+#define STM32L0_I2C_STATE_MASTER_TRANSMIT            7
+#define STM32L0_I2C_STATE_MASTER_RECEIVE             8
+#define STM32L0_I2C_STATE_SLAVE_TRANSMIT             9
+#define STM32L0_I2C_STATE_SLAVE_RECEIVE              10
 
 typedef struct _stm32l0_i2c_pins_t {
     uint16_t                            scl;
@@ -101,8 +102,8 @@ typedef struct _stm32l0_i2c_pins_t {
 typedef struct _stm32l0_i2c_params_t {
     uint8_t                             instance;
     uint8_t                             priority;
-    uint16_t                            rx_dma;
-    uint16_t                            tx_dma;
+    uint8_t                             rx_dma;
+    uint8_t                             tx_dma;
     stm32l0_i2c_pins_t                  pins;
 } stm32l0_i2c_params_t;
 
@@ -125,8 +126,8 @@ typedef struct _stm32l0_i2c_t {
     uint8_t                             instance;
     uint8_t                             interrupt;
     uint8_t                             priority;
-    uint16_t                            rx_dma;
-    uint16_t                            tx_dma;
+    uint8_t                             rx_dma;
+    uint8_t                             tx_dma;
     stm32l0_i2c_pins_t                  pins;
     uint32_t                            option;
     uint32_t                            timeout;

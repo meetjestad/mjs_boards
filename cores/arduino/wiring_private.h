@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2017-2018 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -50,6 +50,7 @@
 #include "stm32l0_timer.h"
 #include "stm32l0_uart.h"
 #include "stm32l0_usbd_cdc.h"
+#include "stm32l0_usbd_hid.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,25 +58,22 @@ extern "C" {
 
 extern void USBD_CDC_Initialize(void *);
 extern void USBD_CDC_MSC_Initialize(void *);
+extern void USBD_CDC_HID_Initialize(void *);
+extern void USBD_CDC_MSC_HID_Initialize(void *);
 
-extern bool USBD_Initialize(uint16_t vid, uint16_t pid, const uint8_t *manufacturer, const uint8_t *product, void(*initialize)(void *),
-                            unsigned int pin_vbus, unsigned int priority,
-                            void(*connect_callback)(void), void(*disconnect_callback)(void), void(*suspend_callback)(void), void(*resume_callback)(void));
-extern void USBD_Teardown(void);
+extern void USBD_Initialize(uint16_t vid, uint16_t pid, const uint8_t *manufacturer, const uint8_t *product, void(*initialize)(void *), unsigned int pin_vbus, unsigned int priority);
 extern void USBD_Attach(void);
 extern void USBD_Detach(void);
-extern void USBD_Wakeup(void);
-extern bool USBD_Attached(void);
+extern void USBD_Poll(void);
 extern bool USBD_Connected(void);
 extern bool USBD_Configured(void);
 extern bool USBD_Suspended(void);
-extern void USBD_SetupVBUS(bool wakeup);
+
+extern void CMWX1ZZABZ_Initialize(uint16_t pin_tcxo, uint16_t pin_stsafe);
+extern void SX1272MB2DAS_Initialize(void);
+extern void WMSGSM42_Initialize(void);
 
 extern int g_swdStatus;  /* 0, default, 1 = enable, 2 = disable, 3 = forced disable */
-
-extern int g_defaultPolicy;
-
-extern uint32_t g_standbyControl;
 
 extern void (*g_serialEventRun)(void);
 
@@ -91,6 +89,10 @@ extern void __analogWriteDisable(uint32_t pin);
  * TIM22  ADC
  */
 
+#define STM32L0_PENDSV_IRQ_PRIORITY  3
+#define STM32L0_SVCALL_IRQ_PRIORITY  3
+#define STM32L0_SYSTICK_IRQ_PRIORITY 3
+
 #define STM32L0_I2C_IRQ_PRIORITY     2
 #define STM32L0_SPI_IRQ_PRIORITY     2
 #define STM32L0_USB_IRQ_PRIORITY     2
@@ -100,6 +102,9 @@ extern void __analogWriteDisable(uint32_t pin);
 #define STM32L0_UART_IRQ_PRIORITY    1
 
 #define STM32L0_ADC_IRQ_PRIORITY     0
+#define STM32L0_EXTI_IRQ_PRIORITY    0
+#define STM32L0_LPTIM_IRQ_PRIORITY   0
+#define STM32L0_RTC_IRQ_PRIORITY     0
 #define STM32L0_SERVO_IRQ_PRIORITY   0
 #define STM32L0_TONE_IRQ_PRIORITY    0
 

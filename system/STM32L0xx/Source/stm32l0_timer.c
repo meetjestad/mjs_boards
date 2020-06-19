@@ -36,7 +36,7 @@ extern void TIM2_IRQHandler(void);
 #if defined(STM32L072xx) || defined(STM32L082xx)
 extern void TIM3_IRQHandler(void);
 #endif /* STM32L072xx || STM32L082xx */
-extern void TIM6_IRQHandler(void);
+extern void TIM6_DAC_IRQHandler(void);
 #if defined(STM32L072xx) || defined(STM32L082xx)
 extern void TIM7_IRQHandler(void);
 #endif /* STM32L072xx || STM32L082xx */
@@ -67,7 +67,7 @@ static const IRQn_Type stm32l0_timer_xlate_IRQn[STM32L0_TIMER_INSTANCE_COUNT] = 
 #if defined(STM32L072xx) || defined(STM32L082xx)
     TIM3_IRQn,
 #endif /* STM32L072xx || STM32L082xx */
-    TIM6_IRQn,
+    TIM6_DAC_IRQn,
 #if defined(STM32L072xx) || defined(STM32L082xx)
     TIM7_IRQn,
 #endif /* STM32L072xx || STM32L082xx */
@@ -345,7 +345,7 @@ bool stm32l0_timer_start(stm32l0_timer_t *timer, uint32_t period, bool oneshot)
 
     if (timer->state == STM32L0_TIMER_STATE_READY)
     {
-        stm32l0_system_lock(STM32L0_SYSTEM_LOCK_RUN);
+        stm32l0_system_lock(STM32L0_SYSTEM_LOCK_CLOCKS);
     }
     else
     {
@@ -381,7 +381,7 @@ bool stm32l0_timer_stop(stm32l0_timer_t *timer)
 
     armv6m_atomic_and(&TIM->CR1, ~TIM_CR1_CEN);
 
-    stm32l0_system_unlock(STM32L0_SYSTEM_LOCK_RUN);
+    stm32l0_system_unlock(STM32L0_SYSTEM_LOCK_CLOCKS);
 
     timer->state = STM32L0_TIMER_STATE_READY;
 
@@ -572,7 +572,7 @@ void TIM3_IRQHandler(void)
 
 #endif /* STM32L072xx || STM32L082xx */
 
-void TIM6_IRQHandler(void)
+void TIM6_DAC_IRQHandler(void)
 {
     stm32l0_timer_interrupt(stm32l0_timer_device.instances[STM32L0_TIMER_INSTANCE_TIM6]);
 }

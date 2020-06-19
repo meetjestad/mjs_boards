@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2016-2018 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -30,22 +30,16 @@
 
 #include "HardwareSerial.h"
 
-#define SERIAL_SBUS     (STM32L0_UART_OPTION_DATA_SIZE_8 | STM32L0_UART_OPTION_PARITY_EVEN | STM32L0_UART_OPTION_STOP_2 | STM32L0_UART_OPTION_RX_INVERT | STM32L0_UART_OPTION_TX_INVERT)
-#define SERIAL_WAKEUP   (STM32L0_UART_OPTION_WAKEUP)
-
-
 #define UART_RX_BUFFER_SIZE 64
 #define UART_TX_BUFFER_SIZE 64
-#define UART_TX_PACKET_SIZE 32
 
 class Uart : public HardwareSerial
 {
 public:
     enum FlowControl: uint32_t {
-        DISABLED           = 0,
-        RTS                = 1,
-        CTS                = 2,
-        RTS_CTS            = 3,
+	DISABLED           = 0,
+ 	RTC_CTS            = 3,
+	XON_XOFF           = 4,
     };
   
     Uart(struct _stm32l0_uart_t *uart, const struct _stm32l0_uart_params_t *params, void (*serialEventRun)(void));
@@ -58,24 +52,27 @@ public:
     virtual int availableForWrite(void);
     virtual int peek();
     virtual int read();
-    virtual int read(uint8_t *buffer, size_t size);
+    virtual size_t read(uint8_t *buffer, size_t size);
     virtual void flush();
     virtual size_t write(const uint8_t data);
     virtual size_t write(const uint8_t *buffer, size_t size);
     using Print::write; // pull in write(str) and write(buf, size) from Print
     operator bool() { return true; }
 
+
     // STM32L0 EXTENSION: RTS/CTS state/control
     void rts(bool enable);
     bool cts();
 
-    // STM32L0 EXTENSTION: asynchronous write with callback
+    // STM32L0 EXTENSION: asynchronous write with callback
     bool write(const uint8_t *buffer, size_t size, void(*callback)(void));
     bool write(const uint8_t *buffer, size_t size, Callback callback);
-    bool done();
-    
+
     // STM32L0 EXTENSION: enable/disable non-blocking writes
     void setNonBlocking(bool enable);
+
+    // STM32L0 EXTENSION: enable/disable wakeup from STOP
+    void setWakeup(bool enable);
 
     // STM32L0 EXTENSION: configure flow control
     void setFlowControl(enum FlowControl mode);
@@ -84,14 +81,9 @@ public:
     void onReceive(void(*callback)(void));
     void onReceive(Callback callback);
 
-    // STM32L0 EXTENSTION: enable/disable wakeup from STM32L0.sleep() / STM32L0.deepsleep()
-    void enableWakeup();
-    void disableWakeup();
-
- private:
+private:
     struct _stm32l0_uart_t *_uart;
     bool _enabled;
-    bool _wakeup;
     bool _nonblocking;
     uint32_t _baudrate;
     uint32_t _option;
@@ -106,11 +98,9 @@ public:
     const uint8_t *_tx_data2;
     volatile uint32_t _tx_size2;
 
-    Callback _receiveCallback;
     Callback _completionCallback;
+    Callback _receiveCallback;
 
     static void _eventCallback(class Uart *self, uint32_t events);
     static void _doneCallback(class Uart *self);
-
-    friend class GNSSClass;
 };

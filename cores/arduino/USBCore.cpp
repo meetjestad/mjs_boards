@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2016-2018 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -35,13 +35,15 @@
 #define USB_TYPE_NONE        0
 #define USB_TYPE_CDC         1
 #define USB_TYPE_CDC_MSC     2
+#define USB_TYPE_CDC_HID     3
+#define USB_TYPE_CDC_MSC_HID 4
 
 #if !defined(USB_TYPE)
 #define USB_VID 0x1209
 #define USB_PID 0x6665
 #define USB_MANUFACTURER "Tlera Corporation"
 #define USB_PRODUCT "CMWX1ZZABZ"
-#define USB_CLASS USBD_CDC_MSC_Initialize
+#define USB_CLASS USBD_CDC_MSC_HID_Initialize
 #else
 #if (USB_TYPE == USB_TYPE_CDC)
 #define USB_CLASS USBD_CDC_Initialize
@@ -49,55 +51,62 @@
 #if (USB_TYPE == USB_TYPE_CDC_MSC)
 #define USB_CLASS USBD_CDC_MSC_Initialize
 #endif
+#if (USB_TYPE == USB_TYPE_CDC_HID)
+#define USB_CLASS USBD_CDC_HID_Initialize
+#endif
+#if (USB_TYPE == USB_TYPE_CDC_MSC_HID)
+#define USB_CLASS USBD_CDC_MSC_HID_Initialize
+#endif
 #endif
 
-bool USBDeviceClass::begin()
+void USBDeviceClass::init()
 {
 #if defined(USB_CLASS)
-    return USBD_Initialize(USB_VID, USB_PID, (const uint8_t*)USB_MANUFACTURER, (const uint8_t*)USB_PRODUCT, USB_CLASS,
-                           STM32L0_CONFIG_PIN_VBUS, STM32L0_USB_IRQ_PRIORITY,
-                           &USBDeviceClass::connectCallback, &USBDeviceClass::disconnectCallback, &USBDeviceClass::suspendCallback, &USBDeviceClass::resumeCallback);
+    USBD_Initialize(USB_VID, USB_PID, (const uint8_t*)USB_MANUFACTURER, (const uint8_t*)USB_PRODUCT, USB_CLASS, STM32L0_CONFIG_PIN_VBUS, STM32L0_USB_IRQ_PRIORITY);
 #endif
-    return false;
+
+    _initialized = true;
 }
 
-void USBDeviceClass::end()
+bool USBDeviceClass::attach()
 {
 #if defined(USB_CLASS)
-    USBD_Teardown();
-#endif    
-}
+    if (!_initialized) {
+	return false;
+    }
 
-void USBDeviceClass::attach()
-{
-#if defined(USB_CLASS)
     USBD_Attach();
-#endif
-}
 
-void USBDeviceClass::detach()
-{
-#if defined(USB_CLASS)
-    USBD_Detach();
-#endif
-}
-
-void USBDeviceClass::wakeup()
-{
-#if defined(USB_CLASS)
-    USBD_Wakeup();
-#endif
-}
-    
-bool USBDeviceClass::attached()
-{
-#if defined(USB_CLASS)
-    return USBD_Attached();
+    return true;
 #else
     return false;
 #endif
 }
 
+bool USBDeviceClass::detach()
+{
+#if defined(USB_CLASS)
+    if (!_initialized) {
+	return false;
+    }
+
+    USBD_Detach();
+
+    return true;
+#else
+    return false;
+#endif
+}
+
+void USBDeviceClass::poll()
+{
+#if defined(USB_CLASS)
+    if (_initialized) {
+	USBD_Poll();
+    }
+#endif
+}
+    
 bool USBDeviceClass::connected()
 {
 #if defined(USB_CLASS)
@@ -123,85 +132,6 @@ bool USBDeviceClass::suspended()
 #else
     return false;
 #endif
-}
-
-void USBDeviceClass::onConnect(void(*callback)(void))
-{
-    _connectCallback = Callback(callback);
-}
-
-void USBDeviceClass::onConnect(Callback callback)
-{
-    _connectCallback = callback;
-}
-
-void USBDeviceClass::onDisconnect(void(*callback)(void))
-{
-    _disconnectCallback = Callback(callback);
-}
-
-void USBDeviceClass::onDisconnect(Callback callback)
-{
-    _disconnectCallback = callback;
-}
-
-void USBDeviceClass::onSuspend(void(*callback)(void))
-{
-    _suspendCallback = Callback(callback);
-}
-
-void USBDeviceClass::onSuspend(Callback callback)
-{
-    _suspendCallback = callback;
-}
-
-void USBDeviceClass::onResume(void(*callback)(void))
-{
-    _resumeCallback = Callback(callback);
-}
-
-void USBDeviceClass::onResume(Callback callback)
-{
-    _resumeCallback = callback;
-}
-
-void USBDeviceClass::enableWakeup()
-{
-    _wakeup = true;
-}
-
-void USBDeviceClass::disableWakeup()
-{
-    _wakeup = false;
-}
-
-void USBDeviceClass::setVBUSDetect(enum USBDeviceDetect mode)
-{
-#if defined(USB_CLASS)
-    USBD_SetupVBUS(mode == SLEEP_AND_STOP);
-#else
-    (void)mode;
-#endif
-}
-
-void USBDeviceClass::connectCallback(void)
-{
-    USBDevice._connectCallback.queue(USBDevice._wakeup);
-}
-
-void USBDeviceClass::disconnectCallback(void)
-{
-    USBDevice._disconnectCallback.queue(USBDevice._wakeup);
-}
-
-void USBDeviceClass::suspendCallback(void)
-{
-    USBDevice._suspendCallback.queue(USBDevice._wakeup);
-}
-
-void USBDeviceClass::resumeCallback(void)
-{
-    USBDevice._resumeCallback.queue(USBDevice._wakeup);
 }
 
 USBDeviceClass USBDevice;

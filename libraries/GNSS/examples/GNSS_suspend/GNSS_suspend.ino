@@ -39,9 +39,7 @@ void setup( void )
 {
     Serial.begin(115200);
 
-    GNSS.begin();
-
-    GNSS.enableWakeup();
+    GNSS.begin(Serial1, GNSS.MODE_UBLOX, GNSS.RATE_1HZ);
 
     while (GNSS.busy()) { }
 
@@ -52,16 +50,18 @@ void setup( void )
     GNSS.setAntenna(GNSS.ANTENNA_INTERNAL);
 
     while (GNSS.busy()) { }
+
+    GNSS.enableWakeup();
 }
 
 void loop( void )
 {
-    STM32L0.deepsleep();
+    STM32L0.stop();
 
     if (GNSS.location(myLocation))
     {
         uint8_t year, month, day, hours, minutes, seconds;
-        uint16_t milliSeconds;
+        uint32_t subSeconds, milliSeconds;
 
         static const char *fixTypeString[] = {
             "NONE",
@@ -108,7 +108,10 @@ void loop( void )
             }
         }
 
-        RTC.getDateTime(day, month, year, hours, minutes, seconds, milliSeconds);
+        RTC.getDate(day, month, year);
+        RTC.getTime(hours, minutes, seconds, subSeconds);
+
+        milliSeconds = ((subSeconds >> 17) * 1000 + 16384) / 32768;
 
         Serial.print("RTC: ");
         Serial.print(2000 + year);
@@ -139,15 +142,6 @@ void loop( void )
             Serial.print("0");
         }
         Serial.print(milliSeconds);
-
-        if (RTC.status() & 0x02) {
-            Serial.print(", TIME-SYNCHRONIZED");
-        }
-        
-        if (RTC.status() & 0x08) {
-            Serial.print(", UTC_OFFSET-SYNCHRONIZED");
-        }
-
         Serial.println();
 
         Serial.print("LOCATION: ");

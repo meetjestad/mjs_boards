@@ -46,13 +46,14 @@ public:
     uint8_t endTransmission(bool stopBit = true);
 
     size_t requestFrom(uint8_t address, size_t size, bool stopBit = true);
+    size_t requestFrom(uint8_t address, size_t size, uint32_t iaddress, uint8_t isize, bool stopBit = true);
 
     size_t write(uint8_t data);
     size_t write(const uint8_t *buffer, size_t size);
 
     virtual int available(void);
     virtual int read(void);
-    virtual int read(uint8_t *buffer, size_t size);
+    virtual size_t read(uint8_t *buffer, size_t size);
     virtual int peek(void);
     virtual void flush(void);
     void onReceive(void(*)(int));
@@ -83,6 +84,10 @@ public:
     // STM32L0 EXTENSTION: suspend/resume the I2C bus
     bool suspend();
     void resume();
+
+    // STM32L0 EXTENSTION: enable/disable wakeup from STOP
+    void enableWakeup();
+    void disableWakeup();
 
   private:
     struct _stm32l0_i2c_t *_i2c;

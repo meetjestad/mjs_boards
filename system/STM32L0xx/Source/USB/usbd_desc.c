@@ -50,9 +50,6 @@
 #include "usbd_desc.h"
 #include "usbd_conf.h"
 
-#include "armv6m.h"
-#include "stm32l0_system.h"
-
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 
@@ -210,7 +207,7 @@ const uint8_t *USBD_CDC_MSC_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16
     USBD_ConvertString(USBD_StringData, USBD_ProductString);
 
     if (USBD_SuffixString) {
-        USBD_AppendString(USBD_StringData, USBD_SuffixString);
+	USBD_AppendString(USBD_StringData, USBD_SuffixString);
     }
 
     *length = USBD_StringData[0];
@@ -260,6 +257,7 @@ static const char *USBD_StringTable[] = {
   "CDC Data",         // 6
   "Mass Storage",     // 7
   "Keyboard + Mouse", // 8
+  "CMSIS-DAP",        // 9
 };
 
 const uint8_t *USBD_CDC_MSC_GetUsrStrDescriptor(USBD_HandleTypeDef *pdev, uint8_t index, uint16_t *length)  
@@ -277,15 +275,19 @@ const uint8_t *USBD_CDC_MSC_GetUsrStrDescriptor(USBD_HandleTypeDef *pdev, uint8_
   */
 static void Get_SerialNum(void)
 {
-  uint64_t serial;
-
-  serial = stm32l0_system_serial();
+  uint32_t deviceserial0, deviceserial1, deviceserial2;
+  
+  deviceserial0 = *(uint32_t*)DEVICE_ID1;
+  deviceserial1 = *(uint32_t*)DEVICE_ID2;
+  deviceserial2 = *(uint32_t*)DEVICE_ID3;
+  
+  deviceserial0 += deviceserial2;
   
   USBD_StringData[0] = USB_SIZ_STRING_SERIAL;
   USBD_StringData[1] = USB_DESC_TYPE_STRING;    
 
-  IntToUnicode ((uint32_t)(serial >> 16), &USBD_StringData[2] ,8);
-  IntToUnicode ((uint32_t)(serial << 16), &USBD_StringData[18] ,4);
+  IntToUnicode (deviceserial0, &USBD_StringData[2] ,8);
+  IntToUnicode (deviceserial2, &USBD_StringData[18] ,4);
 }
 
 /**

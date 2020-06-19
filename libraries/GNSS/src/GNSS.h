@@ -32,8 +32,6 @@
 #include "Arduino.h"
 #include "utility/gnss_api.h"
 
-#define GNSS_RX_BUFFER_SIZE 96
-
 class GNSSLocation {
 public:
     enum GNSSfixType {
@@ -161,8 +159,7 @@ public:
 
     GNSSClass();
 
-    void begin(GNSSmode mode = MODE_UBLOX, GNSSrate rate = RATE_1HZ);
-    void begin(GNSSmode mode, GNSSrate rate, Uart &uart, int pinPPS = -1, int pinENABLE = -1, int pinBACKUP = -1);
+    void begin(Uart &uart, GNSSmode mode, GNSSrate rate = RATE_1HZ);
     void end();
 
     bool setAntenna(GNSSantenna antenna);
@@ -180,26 +177,21 @@ public:
     bool location(GNSSLocation &location);
     bool satellites(GNSSSatellites &satellites);
 
+    void enableWakeup();
+    void disableWakeup();
+
     void onLocation(void(*callback)(void));
     void onLocation(Callback callback);
     void onSatellites(void(*callback)(void));
     void onSatellites(Callback callback);
 
-    void enableWakeup();
-    void disableWakeup();
+    void attachInterrupt(void(*callback)(void));
+    void detachInterrupt();
 
 private:
-    struct _stm32l0_uart_t *_uart;
-    struct {
-        uint16_t pps;
-        uint16_t enable;
-        uint16_t backup;
-    } _pins;
-    bool _enabled;
-    bool _wakeup;
-    bool _internal;
+    Uart *_uart;
     uint32_t _baudrate;
-    uint8_t _rx_data[GNSS_RX_BUFFER_SIZE];
+    bool _wakeup;
     gnss_location_t _location_data;
     volatile uint32_t _location_pending;
     gnss_satellites_t _satellites_data;
@@ -208,22 +200,18 @@ private:
     Callback _locationCallback;
     Callback _satellitesCallback;
 
+    void (*_ppsCallback)(void);
     void (*_doneCallback)(void);
 
-    void uartBegin(GNSSmode mode, GNSSrate rate, struct _stm32l0_uart_t *uart, const struct _stm32l0_uart_params_t *params, uint16_t pps, uint16_t enable, uint16_t backup, bool internal);
-    void uartEnd();
-    static void uartReceiveCallback(class GNSSClass*);
-    static void uartEventCallback(class GNSSClass*, uint32_t);
-    static void uartDoneCallback(class GNSSClass*);
-    static void uartSendRoutine(class GNSSClass*, const uint8_t*, uint32_t, gnss_send_callback_t);
-    
+    void receiveCallback(void);
+    void completionCallback(void);
+
+    static void sendRoutine(class GNSSClass*, const uint8_t*, uint32_t, gnss_send_callback_t);
     static void enableCallback(class GNSSClass*);
     static void disableCallback(class GNSSClass*);
     static void locationCallback(class GNSSClass*, const gnss_location_t*);
     static void satellitesCallback(class GNSSClass*, const gnss_satellites_t*);
-
-public:
-    void __attribute__ ((deprecated("use ::begin(mode, rate) as a replacement"))) begin(Uart &uart __attribute__((unused)), GNSSmode mode, GNSSrate rate = RATE_1HZ) { begin(mode, rate); }
+    static void ppsCallback(class GNSSClass*);
 };
 
 extern GNSSClass GNSS;

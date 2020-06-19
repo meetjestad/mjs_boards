@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2017-2018 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -39,9 +39,9 @@
 
 #include "armv6m_atomic.h"
 #include "armv6m_core.h"
+#include "armv6m_event.h"
 #include "armv6m_pendsv.h"
 #include "armv6m_svcall.h"
 #include "armv6m_systick.h"
-#include "armv6m_work.h"
 
 #endif /* _ARMV6M_H */

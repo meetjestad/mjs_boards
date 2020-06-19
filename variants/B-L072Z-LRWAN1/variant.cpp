@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2017-2018 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -28,7 +28,6 @@
 
 #include "Arduino.h"
 #include "wiring_private.h"
-#include "../Source/LoRa/Radio/radio.h"
 
 #define PWM_INSTANCE_TIM21     0
 
@@ -64,6 +63,11 @@ extern const PinDescription g_APinDescription[PINS_COUNT] =
     { NULL,  0,                                            STM32L0_GPIO_PIN_NONE,           0,                                             PWM_INSTANCE_NONE,  PWM_CHANNEL_NONE, ADC_CHANNEL_NONE },
     { NULL,  0,                                            STM32L0_GPIO_PIN_NONE,           0,                                             PWM_INSTANCE_NONE,  PWM_CHANNEL_NONE, ADC_CHANNEL_NONE },
     { NULL,  0,                                            STM32L0_GPIO_PIN_NONE,           0,                                             PWM_INSTANCE_NONE,  PWM_CHANNEL_NONE, ADC_CHANNEL_NONE },
+
+     // 22..24 - Special pins (USB_DM, USB_DP)
+    { NULL,  STM32L0_GPIO_PIN_MASK(STM32L0_GPIO_PIN_PA11), STM32L0_GPIO_PIN_PA11,           (PIN_ATTR_EXTI),                               PWM_INSTANCE_NONE,  PWM_CHANNEL_NONE, ADC_CHANNEL_NONE },
+    { NULL,  STM32L0_GPIO_PIN_MASK(STM32L0_GPIO_PIN_PA12), STM32L0_GPIO_PIN_PA12,           (PIN_ATTR_EXTI),                               PWM_INSTANCE_NONE,  PWM_CHANNEL_NONE, ADC_CHANNEL_NONE },
+
 };
 
 extern const unsigned int g_PWMInstances[PWM_INSTANCE_COUNT] = {
@@ -76,8 +80,8 @@ static uint8_t stm32l0_usart2_rx_fifo[32];
 extern const stm32l0_uart_params_t g_SerialParams = {
     STM32L0_UART_INSTANCE_USART2,
     STM32L0_UART_IRQ_PRIORITY,
-    STM32L0_DMA_CHANNEL_DMA1_CH6_USART2_RX,
-    STM32L0_DMA_CHANNEL_NONE,
+    STM32L0_DMA_CHANNEL_DMA1_CH5_USART2_RX,
+    STM32L0_DMA_CHANNEL_DMA1_CH4_USART2_TX,
     &stm32l0_usart2_rx_fifo[0],
     sizeof(stm32l0_usart2_rx_fifo),
     {
@@ -110,8 +114,8 @@ extern const stm32l0_uart_params_t g_Serial1Params = {
 extern const stm32l0_spi_params_t g_SPIParams = {
     STM32L0_SPI_INSTANCE_SPI2,
     STM32L0_SPI_IRQ_PRIORITY,
-    STM32L0_DMA_CHANNEL_DMA1_CH4_SPI2_RX,
-    STM32L0_DMA_CHANNEL_DMA1_CH5_SPI2_TX,
+    STM32L0_DMA_CHANNEL_DMA1_CH6_SPI2_RX,
+    STM32L0_DMA_CHANNEL_NONE,
     {
         STM32L0_GPIO_PIN_PB15_SPI2_MOSI,
         STM32L0_GPIO_PIN_PB14_SPI2_MISO,
@@ -132,12 +136,8 @@ extern const stm32l0_i2c_params_t g_WireParams = {
     },
 };
 
-void RadioInit( const RadioEvents_t *events, uint32_t freq )
-{
-    SX1276Init(events, freq);
-}
 
 void initVariant()
 {
-    CMWX1ZZABZ_Initialize(STM32L0_GPIO_PIN_PA12, STM32L0_GPIO_PIN_PA11);
+    CMWX1ZZABZ_Initialize(STM32L0_GPIO_PIN_PH1, STM32L0_GPIO_PIN_NONE);
 }

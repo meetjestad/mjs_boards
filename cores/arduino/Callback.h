@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2016-2018 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -28,13 +28,11 @@
 
 #pragma once
 
-#include <cstddef>
-
 class Callback {
 public:
-    Callback() : _callback(nullptr), _context(nullptr) {  }
+    Callback() : _callback(NULL), _context(NULL) {  }
 
-    Callback(void (*function)(void)) : _callback((void (*)(void*))function), _context(nullptr) { }
+    Callback(void (*function)(void)) : _callback((void (*)(void*))function), _context(NULL) { }
 
     template<typename T>
     Callback(void (T::*method)(), T *object) { bind(&method, object); }
@@ -60,10 +58,12 @@ public:
     template<typename T>
     Callback(void (T::*method)() const volatile, const volatile T &object) { bind(&method, &object); }
 
-    bool queue(bool wakeup);
+    Callback(class EventHandler *event);
+
+    bool queue();
     void call();
 
-    operator bool() { return (_callback != nullptr); }
+    operator bool() { return (_callback != NULL); }
 
 private:
     void (*_callback)(void*);

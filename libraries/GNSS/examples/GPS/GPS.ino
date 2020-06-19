@@ -1,5 +1,4 @@
 #include "GNSS.h"
-#include "RTC.h"
 
 GNSSLocation myLocation;
 GNSSSatellites mySatellites;
@@ -8,7 +7,7 @@ void setup( void )
 {
     Serial.begin(9600);
 
-    GNSS.begin();
+    GNSS.begin(Serial1, GNSS.MODE_UBLOX, GNSS.RATE_1HZ);
 
     while (GNSS.busy()) { }
 
@@ -19,9 +18,6 @@ void loop( void )
 {
     if (GNSS.location(myLocation))
     {
-        uint8_t year, month, day, hours, minutes, seconds;
-        uint16_t milliSeconds;
-
         static const char *fixTypeString[] = {
             "NONE",
             "TIME",
@@ -40,48 +36,6 @@ void loop( void )
             "/MANUAL",
             "/SIMULATION",
         };
-
-        RTC.getDateTime(day, month, year, hours, minutes, seconds, milliSeconds);
-
-        Serial.print("RTC: ");
-        Serial.print(2000 + year);
-        Serial.print("/");
-        Serial.print(month);
-        Serial.print("/");
-        Serial.print(day);
-        Serial.print(" ");
-        if (hours <= 9) {
-            Serial.print("0");
-        }
-        Serial.print(hours);
-        Serial.print(":");
-        if (minutes <= 9) {
-            Serial.print("0");
-        }
-        Serial.print(minutes);
-        Serial.print(":");
-        if (seconds <= 9) {
-            Serial.print("0");
-        }
-        Serial.print(seconds);
-        Serial.print(".");
-        if (milliSeconds <= 9) {
-            Serial.print("0");
-        }
-        if (milliSeconds <= 99) {
-            Serial.print("0");
-        }
-        Serial.print(milliSeconds);
-
-        if (RTC.status() & 0x02) {
-            Serial.print(", TIME-SYNCHRONIZED");
-        }
-        
-        if (RTC.status() & 0x08) {
-            Serial.print(", UTC_OFFSET-SYNCHRONIZED");
-        }
-
-        Serial.println();
 
         Serial.print("LOCATION: ");
         Serial.print(fixTypeString[myLocation.fixType()]);

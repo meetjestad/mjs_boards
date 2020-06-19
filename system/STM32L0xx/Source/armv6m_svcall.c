@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2014-2018 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -28,23 +28,24 @@
 
 #include "armv6m.h"
 
-void __armv6m_svcall_initialize(void)
+extern void SVC_Handler(void);
+
+void armv6m_svcall_initialize(void)
 {
-    NVIC_SetPriority(SVC_IRQn, ARMV6M_IRQ_PRIORITY_SVCALL);
+    NVIC_SetPriority(SVC_IRQn, ((1 << __NVIC_PRIO_BITS) -1));
 }
 
 void __attribute__((naked)) SVC_Handler(void)
 {
     __asm__(
-        "   mov     r2, sp                               \n"
-        "   push    { r2, lr }                           \n"
-        "   .cfi_def_cfa_offset 8                        \n"
-        "   .cfi_offset 2, -8                            \n"
-        "   .cfi_offset 14, -4                           \n"
-        "   ldmia   r2, { r0, r1, r2, r3 }               \n"
-        "   blx     r7                                   \n"
-        "   str     r0, [sp, #8]                         \n"
-        "   pop     { r2, pc }                           \n"
+        "  mov     r2, sp                              \n"
+        "  push    { r2, lr }                          \n"
+        "  ldmia   r2, { r0, r1, r2, r3 }              \n"
+        "  blx     r7                                  \n"
+        "  pop     { r2, r3 }                          \n"
+        "  mov     lr, r3                              \n"
+        "  str     r0, [r2, #0]                        \n"
+        "  bx      lr                                  \n"
         :
         :
         );

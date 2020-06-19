@@ -65,7 +65,7 @@ public:
     // Stream methods:
     int available() override;
     int read() override;
-    int read(uint8_t* data, size_t size) override;
+    size_t read(uint8_t* data, size_t size) override;
     int peek() override;
 
     // File methods
@@ -120,7 +120,7 @@ public:
 
     DirEntry() { _info.type = DT_UNKNOWN; }
 
-    const char *name() { return (_info.type == DT_UNKNOWN) ? nullptr : _info.name; }
+    const char *name() { return (_info.type == DT_UNKNOWN) ? NULL : _info.name; }
     size_t fileSize() { return (_info.type == DT_UNKNOWN) ? 0 : _info.size; };
     bool isDirectory() { return _info.type == DT_DIR; }
     bool isFile() { return _info.type == DT_REG; }

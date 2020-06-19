@@ -60,7 +60,7 @@ extern uint32_t analogRead( uint32_t ulPin ) ;
 
 
 /*
- * \brief Set the resolution of analogRead return values. Default is 10 bits (range from 1 to 12).
+ * \brief Set the resolution of analogRead return values. Default is 10 bits (range from 1 to 16).
  *
  * \param res
  */
@@ -74,19 +74,12 @@ extern void analogReadResolution(int resolution);
 extern void analogReadPeriod(int period);
 
 /*
- * \brief Set the resolution of analogWrite parameters. Default is 8 bits (range from 1 to 12).
+ * \brief Set the resolution of analogWrite parameters. Default is 8 bits (range from 1 to 16).
  *
  * \param res
  */
 extern void analogWriteResolution(int resolution);
 
-/*
- * \brief Set the frequency of analogWrite PWM. A 0 switches back to the default.
- *
- * \param res
- */
-extern void analogWriteFrequency( unsigned long frequency );
-  
 #ifdef __cplusplus
 }
 #endif

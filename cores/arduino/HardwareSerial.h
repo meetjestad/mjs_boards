@@ -36,6 +36,8 @@
 #define SERIAL_7O2	(STM32L0_UART_OPTION_DATA_SIZE_7 | STM32L0_UART_OPTION_PARITY_ODD | STM32L0_UART_OPTION_STOP_2)
 #define SERIAL_8O2	(STM32L0_UART_OPTION_DATA_SIZE_8 | STM32L0_UART_OPTION_PARITY_ODD | STM32L0_UART_OPTION_STOP_2)
 
+#define SERIAL_SBUS	(STM32L0_UART_OPTION_DATA_SIZE_8 | STM32L0_UART_OPTION_PARITY_EVEN | STM32L0_UART_OPTION_STOP_2 | STM32L0_UART_OPTION_RX_INVERT | STM32L0_UART_OPTION_TX_INVERT)
+
 class HardwareSerial : public Stream
 {
   public:
@@ -45,7 +47,7 @@ class HardwareSerial : public Stream
     virtual int available(void) = 0;
     virtual int peek(void) = 0;
     virtual int read(void) = 0;
-    virtual int read(uint8_t *buffer, size_t size) = 0;
+    virtual size_t read(uint8_t *buffer, size_t size) = 0;
     virtual void flush(void) = 0;
     virtual size_t write(uint8_t) = 0;
     using Print::write; // pull in write(str) and write(buf, size) from Print

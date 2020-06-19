@@ -33,9 +33,7 @@
 
 #include "dosfs_core.h"
 
-__attribute__((section(".noinit"))) static uint32_t dosfs_device_cache[DOSFS_DEVICE_CACHE_SIZE / sizeof(uint32_t)];
-
-dosfs_device_t dosfs_device = { .cache = (uint8_t*)&dosfs_device_cache[0] };
+dosfs_device_t dosfs_device;
 
 int dosfs_device_format(dosfs_device_t *device, uint8_t *data)
 {

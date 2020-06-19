@@ -8,8 +8,8 @@ menu.opt=Optimize
 # ST B-L072Z-LRWAN1
 # ---------------------------------------
 B-L072Z-LRWAN1.name=B-L072Z-LRWAN1
-B-L072Z-LRWAN1.vid.0=0x0483
-B-L072Z-LRWAN1.pid.0=0x374b
+B-L072Z-LRWAN1.vid.0=0x1209
+B-L072Z-LRWAN1.pid.0=0x0001
 
 B-L072Z-LRWAN1.upload.tool=stm32l0_dfu
 B-L072Z-LRWAN1.upload.protocol=dfu
@@ -24,15 +24,24 @@ B-L072Z-LRWAN1.build.f_cpu=32000000L
 B-L072Z-LRWAN1.build.board=STM32L0_B_L072Z_LRWAN1
 B-L072Z-LRWAN1.build.arch=stm32l0
 B-L072Z-LRWAN1.build.core=arduino
-B-L072Z-LRWAN1.build.vid=0x0483
-B-L072Z-LRWAN1.build.pid=0x374b
+B-L072Z-LRWAN1.build.vid=0x1209
+B-L072Z-LRWAN1.build.pid=0x0001
 B-L072Z-LRWAN1.build.did=0xffff
-B-L072Z-LRWAN1.build.extra_flags=-DSTM32L072xx -march=armv6-m -mthumb -mabi=aapcs -mfloat-abi=soft -fsingle-precision-constant
+B-L072Z-LRWAN1.build.usb_manufacturer="KITT Engineering"
+B-L072Z-LRWAN1.build.usb_product="STM32L0"
+B-L072Z-LRWAN1.build.extra_flags=-DSTM32L072xx -march=armv6-m -mthumb -mabi=aapcs -mfloat-abi=soft -fsingle-precision-constant {build.usb_flags}
 B-L072Z-LRWAN1.build.ldscript=linker_scripts/STM32L072CZ_FLASH.ld
 B-L072Z-LRWAN1.build.openocdscript=openocd_scripts/b-l072z-lrwan1.cfg
 B-L072Z-LRWAN1.build.variant=B-L072Z-LRWAN1
 B-L072Z-LRWAN1.build.variant_system_libs="-L{runtime.platform.path}/system/STM32L0xx/Lib" "-L{runtime.platform.path}/system/CMSIS/Lib" -lstm32l072xx -larm_cortexM0l_math
 B-L072Z-LRWAN1.build.variant_system_include="-I{runtime.platform.path}/system/CMSIS/Include" "-I{runtime.platform.path}/system/CMSIS/Device/ST/STM32L0xx/Include" "-I{runtime.platform.path}/system/STM32L0xx/Include" 
+
+B-L072Z-LRWAN1.menu.usb.cdc=Serial
+B-L072Z-LRWAN1.menu.usb.cdc.build.usb_type=USB_TYPE_CDC
+B-L072Z-LRWAN1.menu.usb.cdc_hid=Serial + Keyboard + Mouse
+B-L072Z-LRWAN1.menu.usb.cdc_hid.build.usb_type=USB_TYPE_CDC_HID
+B-L072Z-LRWAN1.menu.usb.none=No USB
+B-L072Z-LRWAN1.menu.usb.none.build.usb_type=USB_TYPE_NONE
 
 B-L072Z-LRWAN1.menu.speed.32=32 MHz
 B-L072Z-LRWAN1.menu.speed.32.build.f_cpu=32000000L
@@ -53,10 +62,5 @@ B-L072Z-LRWAN1.menu.opt.o2.build.flags.ldspecs=
 B-L072Z-LRWAN1.menu.opt.o3=Fastest
 B-L072Z-LRWAN1.menu.opt.o3.build.flags.optimize=-O3
 B-L072Z-LRWAN1.menu.opt.o3.build.flags.ldspecs=
-
-
-
-
-
 
 

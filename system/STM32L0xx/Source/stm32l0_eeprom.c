@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2017-2018 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -53,7 +53,7 @@ static stm32l0_eeprom_device_t stm32l0_eeprom_device;
 
 void __stm32l0_eeprom_initialize(void)
 {
-    NVIC_SetPriority(FLASH_IRQn, STM32L0_EEPROM_IRQ_PRIORITY);
+    NVIC_SetPriority(FLASH_IRQn, ((1 << __NVIC_PRIO_BITS) -1) -1);
     
     NVIC_EnableIRQ(FLASH_IRQn);
     
@@ -111,7 +111,7 @@ bool stm32l0_eeprom_enqueue(stm32l0_eeprom_transaction_t *transaction)
         queue = stm32l0_eeprom_device.queue;
         transaction->next = queue;
     }
-    while (armv6m_atomic_cas((volatile uint32_t*)&stm32l0_eeprom_device.queue, (uint32_t)queue, (uint32_t)transaction) != (uint32_t)queue);
+    while (armv6m_atomic_compare_and_swap((volatile uint32_t*)&stm32l0_eeprom_device.queue, (uint32_t)queue, (uint32_t)transaction) != (uint32_t)queue);
 
     NVIC_SetPendingIRQ(FLASH_IRQn);
 
@@ -213,7 +213,8 @@ void FLASH_IRQHandler(void)
 
                 FLASH->PECR |= FLASH_PECR_PELOCK;
 
-                stm32l0_system_unlock(STM32L0_SYSTEM_LOCK_RUN);
+                stm32l0_system_unlock(STM32L0_SYSTEM_LOCK_CLOCKS);
+                stm32l0_system_unlock(STM32L0_SYSTEM_LOCK_STOP);
 
                 stm32l0_eeprom_device.address = 0x00000000;
                 
@@ -250,7 +251,8 @@ void FLASH_IRQHandler(void)
 
                 FLASH->PECR |= FLASH_PECR_PELOCK;
 
-                stm32l0_system_unlock(STM32L0_SYSTEM_LOCK_RUN);
+                stm32l0_system_unlock(STM32L0_SYSTEM_LOCK_CLOCKS);
+                stm32l0_system_unlock(STM32L0_SYSTEM_LOCK_STOP);
                 
                 stm32l0_eeprom_device.address = 0x00000000;
                 
@@ -285,11 +287,12 @@ void FLASH_IRQHandler(void)
                     break;
                 }
             }
-            while (armv6m_atomic_cas((volatile uint32_t*)&stm32l0_eeprom_device.queue, (uint32_t)transaction, (uint32_t)NULL) != (uint32_t)queue);
+            while (armv6m_atomic_compare_and_swap((volatile uint32_t*)&stm32l0_eeprom_device.queue, (uint32_t)transaction, (uint32_t)NULL) != (uint32_t)queue);
         
             if ((transaction->control == STM32L0_EEPROM_CONTROL_ERASE) || (transaction->control == STM32L0_EEPROM_CONTROL_PROGRAM))
             {
-                stm32l0_system_lock(STM32L0_SYSTEM_LOCK_RUN);
+                stm32l0_system_lock(STM32L0_SYSTEM_LOCK_STOP);
+                stm32l0_system_lock(STM32L0_SYSTEM_LOCK_CLOCKS);
 
                 primask = __get_PRIMASK();
 
@@ -342,7 +345,8 @@ void FLASH_IRQHandler(void)
                         
                     FLASH->PECR |= FLASH_PECR_PELOCK;
                     
-                    stm32l0_system_unlock(STM32L0_SYSTEM_LOCK_RUN);
+                    stm32l0_system_unlock(STM32L0_SYSTEM_LOCK_CLOCKS);
+                    stm32l0_system_unlock(STM32L0_SYSTEM_LOCK_STOP);
                     
                     stm32l0_eeprom_device.address = 0x00000000;
                     

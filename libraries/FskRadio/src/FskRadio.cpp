@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2018 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -60,8 +60,7 @@ FskRadioClass::FskRadioClass()
     _tx_data = (uint8_t*)&FskRadioBuffer[0];
     _rx_data = (uint8_t*)&FskRadioBuffer[(FSKRADIO_TX_BUFFER_SIZE + 3) / 4];
 
-    _wakeup = false;
-    _enabled = false;
+    _initialized = false;
 }
 
 int FskRadioClass::begin(unsigned long frequency)
@@ -80,11 +79,11 @@ int FskRadioClass::begin(unsigned long frequency)
         return 0;
     }
 
-    if (_enabled) {
+    if (_initialized) {
         return 0;
     }
 
-    _enabled = true;
+    _initialized = true;
     _busy = 0;
 
     _tx_size = 0;
@@ -118,12 +117,13 @@ int FskRadioClass::begin(unsigned long frequency)
     _afcOn = true;
     _crcOn = true;
 
+    _wakeup = false;
     _implicitHeader = false;
     _timeout = 0;
 
     FskRadioInstance = this;
 
-    RadioInit(&FskRadioEvents, frequency);
+    Radio.Init(&FskRadioEvents, frequency);
 
     Radio.SetModem(MODEM_FSK);
 
@@ -136,11 +136,11 @@ int FskRadioClass::begin(unsigned long frequency)
 
 void FskRadioClass::end()
 {
-    if (_enabled) {
+    if (_initialized) {
         Radio.Sleep();
     }
 
-    _enabled = false;
+    _initialized = false;
 
     FskRadioInstance = NULL;
 }
@@ -152,7 +152,7 @@ bool FskRadioClass::busy()
 
 int FskRadioClass::beginPacket()
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -164,7 +164,7 @@ int FskRadioClass::beginPacket()
 
 int FskRadioClass::beginPacket(uint8_t address)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -194,7 +194,7 @@ int FskRadioClass::endPacket(bool fixedPayloadLength)
 
 int FskRadioClass::sendPacket(const uint8_t *buffer, size_t size, bool fixedPayloadLength)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -217,7 +217,7 @@ int FskRadioClass::sendPacket(const uint8_t *buffer, size_t size, bool fixedPayl
 
 int FskRadioClass::sendPacket(uint8_t address, const uint8_t *buffer, size_t size, bool fixedPayloadLength)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -242,7 +242,7 @@ int FskRadioClass::sendPacket(uint8_t address, const uint8_t *buffer, size_t siz
 
 int FskRadioClass::receive(unsigned int timeout)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -256,7 +256,7 @@ int FskRadioClass::sense(int rssiThreshold, unsigned int senseTime)
     IRQn_Type irq;
     bool isChannelFree;
 
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -279,7 +279,7 @@ int FskRadioClass::sense(int rssiThreshold, unsigned int senseTime)
 
 int FskRadioClass::standby()
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -288,7 +288,7 @@ int FskRadioClass::standby()
 
 int FskRadioClass::sleep()
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -426,7 +426,7 @@ int FskRadioClass::read()
     return data;
 }
 
-int FskRadioClass::read(uint8_t *buffer, size_t size)
+size_t FskRadioClass::read(uint8_t *buffer, size_t size)
 {
     size_t count;
 
@@ -517,7 +517,7 @@ bool FskRadioClass::packetBroadcast()
 
 int FskRadioClass::setFrequency(unsigned long frequency)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -532,7 +532,7 @@ int FskRadioClass::setFrequency(unsigned long frequency)
 
 int FskRadioClass::setTxPower(int level)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -547,7 +547,7 @@ int FskRadioClass::setTxPower(int level)
 
 int FskRadioClass::setDeviation(unsigned int deviation)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -562,7 +562,7 @@ int FskRadioClass::setDeviation(unsigned int deviation)
 
 int FskRadioClass::setBandwidth(unsigned int bandwidth)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -577,7 +577,7 @@ int FskRadioClass::setBandwidth(unsigned int bandwidth)
 
 int FskRadioClass::setBandwidthAfc(unsigned int bandwidth)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -592,7 +592,7 @@ int FskRadioClass::setBandwidthAfc(unsigned int bandwidth)
 
 int FskRadioClass::setBitRate(unsigned int bitrate)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -608,7 +608,7 @@ int FskRadioClass::setBitRate(unsigned int bitrate)
 
 int FskRadioClass::setPreambleLength(unsigned int length)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -628,7 +628,7 @@ int FskRadioClass::setPreambleLength(unsigned int length)
 
 int FskRadioClass::setFixedPayloadLength(unsigned int length)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -647,7 +647,7 @@ int FskRadioClass::setFixedPayloadLength(unsigned int length)
 
 int FskRadioClass::setMaxPayloadLength(unsigned int length)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -666,7 +666,7 @@ int FskRadioClass::setMaxPayloadLength(unsigned int length)
 
 int FskRadioClass::setSyncTimeout(unsigned int timeout)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -685,7 +685,7 @@ int FskRadioClass::setSyncTimeout(unsigned int timeout)
 
 int FskRadioClass::setSyncWord(const uint8_t *data, unsigned int size)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -693,7 +693,7 @@ int FskRadioClass::setSyncWord(const uint8_t *data, unsigned int size)
         return 0;
     }
 
-    if (size == 0) {
+    if (size > 1) {
         return 0;
     }
 
@@ -708,7 +708,7 @@ int FskRadioClass::setSyncWord(const uint8_t *data, unsigned int size)
 
 int FskRadioClass::setAddressFiltering(AddressFiltering filtering)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -725,7 +725,7 @@ int FskRadioClass::setAddressFiltering(AddressFiltering filtering)
 
 int FskRadioClass::setNodeAddress(uint8_t address)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -742,7 +742,7 @@ int FskRadioClass::setNodeAddress(uint8_t address)
 
 int FskRadioClass::setBroadcastAddress(uint8_t address)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -759,7 +759,7 @@ int FskRadioClass::setBroadcastAddress(uint8_t address)
 
 int FskRadioClass::setModulation(Modulation modulation)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -776,7 +776,7 @@ int FskRadioClass::setModulation(Modulation modulation)
 
 int FskRadioClass::setLnaBoost(bool enable)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -791,7 +791,7 @@ int FskRadioClass::setLnaBoost(bool enable)
 
 int FskRadioClass::enableAfc()
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -808,7 +808,7 @@ int FskRadioClass::enableAfc()
 
 int FskRadioClass::disableAfc()
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -825,7 +825,7 @@ int FskRadioClass::disableAfc()
 
 int FskRadioClass::enableWhitening()
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -840,7 +840,7 @@ int FskRadioClass::enableWhitening()
 
 int FskRadioClass::disableWhitening()
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -855,7 +855,7 @@ int FskRadioClass::disableWhitening()
 
 int FskRadioClass::enableCrc()
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -871,7 +871,7 @@ int FskRadioClass::enableCrc()
 
 int FskRadioClass::disableCrc()
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -887,7 +887,7 @@ int FskRadioClass::disableCrc()
 
 int FskRadioClass::setIdleMode(IdleMode mode)
 {
-    if (!_enabled) {
+    if (!_initialized) {
         return 0;
     }
 
@@ -898,6 +898,16 @@ int FskRadioClass::setIdleMode(IdleMode mode)
     Radio.SetIdleMode(mode);
 
     return 1;
+}
+
+void FskRadioClass::enableWakeup()
+{
+    _wakeup = true;
+}
+
+void FskRadioClass::disableWakeup()
+{
+    _wakeup = false;
 }
 
 void FskRadioClass::onTransmit(void(*callback)(void))
@@ -918,16 +928,6 @@ void FskRadioClass::onReceive(void(*callback)(void))
 void FskRadioClass::onReceive(Callback callback)
 {
     _receiveCallback = callback;
-}
-
-void FskRadioClass::enableWakeup()
-{
-    _wakeup = true;
-}
-
-void FskRadioClass::disableWakeup()
-{
-    _wakeup = false;
 }
 
 bool FskRadioClass::__TxStart(void)
@@ -1093,9 +1093,13 @@ void FskRadioClass::__TxDone(void)
 {
     FskRadioClass *self = FskRadioInstance;
 
+    if (self->_wakeup) {
+        stm32l0_system_wakeup();
+    }
+
     self->_busy = 0;
 
-    self->_transmitCallback.queue(self->_wakeup);
+    self->_transmitCallback.queue();
 }
 
 void FskRadioClass::__RxDone(uint8_t *data, uint16_t size, int16_t rssi, int8_t snr)
@@ -1103,6 +1107,10 @@ void FskRadioClass::__RxDone(uint8_t *data, uint16_t size, int16_t rssi, int8_t 
     FskRadioClass *self = FskRadioInstance;
     uint32_t rx_write, rx_size;
     bool broadcast;
+
+    if (self->_wakeup) {
+        stm32l0_system_wakeup();
+    }
 
     rx_write = self->_rx_write;
 
@@ -1179,16 +1187,20 @@ void FskRadioClass::__RxDone(uint8_t *data, uint16_t size, int16_t rssi, int8_t 
         self->_busy = 0;
     }
 
-    self->_receiveCallback.queue(self->_wakeup);
+    self->_receiveCallback.queue();
 }
 
 void FskRadioClass::__RxTimeout(void)
 {
     FskRadioClass *self = FskRadioInstance;
 
+    if (self->_wakeup) {
+        stm32l0_system_wakeup();
+    }
+
     self->_busy = 0;
 
-    self->_receiveCallback.queue(self->_wakeup);
+    self->_receiveCallback.queue();
 }
 
 FskRadioClass FskRadio;

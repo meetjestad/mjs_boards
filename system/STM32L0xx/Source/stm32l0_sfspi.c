@@ -90,11 +90,11 @@ static uint8_t stm32l0_sfspi_wait(stm32l0_sfspi_t *sfspi)
     uint8_t status;
 
     stm32l0_sfspi_select(sfspi);
-    stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_RDSR);
+    stm32l0_spi_data(sfspi->spi, SFLASH_CMD_RDSR);
 
     do
     {
-        status = stm32l0_spi_data8(sfspi->spi, 0xff);
+        status = stm32l0_spi_data(sfspi->spi, 0xff);
     }
     while (status & SFLASH_SR_WIP);
 
@@ -103,29 +103,23 @@ static uint8_t stm32l0_sfspi_wait(stm32l0_sfspi_t *sfspi)
     return status;
 }
 
-static bool stm32l0_sfspi_info(void *context, uint32_t *p_capacity, uint32_t *p_serial)
+static uint32_t stm32l0_sfspi_capacity(void *context)
 {
     stm32l0_sfspi_t *sfspi = (stm32l0_sfspi_t*)context;
-    uint32_t uid[3];
-    
+
     if ((sfspi->state != STM32L0_SFSPI_STATE_READY) && (sfspi->state != STM32L0_SFSPI_STATE_LOCKED))
     {
-        return false;
+        return 0;
     }
 
-    stm32l0_system_uid(&uid[0]);
-    
-    *p_capacity = (1u << sfspi->ID[2]);
-    *p_serial = (uid[0] + uid[2]) ^ uid[1];
-    
-    return true;
+    return (1u << sfspi->ID[2]);
 }
 
-static void stm32l0_sfspi_hook(void *context, dosfs_device_lock_callback_t callback, void *cookie)
+static void stm32l0_sfspi_notify(void *context, dosfs_sflash_notify_callback_t callback, void *cookie)
 {
     stm32l0_sfspi_t *sfspi = (stm32l0_sfspi_t*)context;
 
-    stm32l0_spi_hook(sfspi->spi, callback, cookie);
+    stm32l0_spi_notify(sfspi->spi, callback, cookie);
 }
 
 static void stm32l0_sfspi_lock(void *context)
@@ -137,7 +131,7 @@ static void stm32l0_sfspi_lock(void *context)
     if (sfspi->state == STM32L0_SFSPI_STATE_SLEEP)
     {
         stm32l0_sfspi_select(sfspi);
-        stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_RDPD);
+        stm32l0_spi_data(sfspi->spi, SFLASH_CMD_RDPD);
         stm32l0_sfspi_unselect(sfspi);
         
         armv6m_core_udelay(50);
@@ -166,21 +160,18 @@ static bool stm32l0_sfspi_erase(void *context, uint32_t address)
     do
     {
         stm32l0_sfspi_select(sfspi);
-        stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_WREN);
+        stm32l0_spi_data(sfspi->spi, SFLASH_CMD_WREN);
         stm32l0_sfspi_unselect(sfspi);
         
         stm32l0_sfspi_select(sfspi);
-        stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_RDSR);
-        status = stm32l0_spi_data8(sfspi->spi, 0xff);
+        stm32l0_spi_data(sfspi->spi, SFLASH_CMD_RDSR);
+        status = stm32l0_spi_data(sfspi->spi, 0xff);
         stm32l0_sfspi_unselect(sfspi);
     }
     while (!(status & SFLASH_SR_WEL));
 
     stm32l0_sfspi_select(sfspi);
-    stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_BLOCK_ERASE);
-    stm32l0_spi_data8(sfspi->spi, (address >> 16));
-    stm32l0_spi_data8(sfspi->spi, (address >> 8));
-    stm32l0_spi_data8(sfspi->spi, (address >> 0));
+    stm32l0_spi_data32(sfspi->spi, (SFLASH_CMD_BLOCK_ERASE << 24) | address);
     stm32l0_sfspi_unselect(sfspi);
 
     status = stm32l0_sfspi_wait(sfspi);
@@ -188,8 +179,8 @@ static bool stm32l0_sfspi_erase(void *context, uint32_t address)
     if (sfspi->ID[0] == SFLASH_MID_MACRONIX)
     {
         stm32l0_sfspi_select(sfspi);
-        stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_RDSCUR);
-        status = stm32l0_spi_data8(sfspi->spi, 0xff);
+        stm32l0_spi_data(sfspi->spi, SFLASH_CMD_RDSCUR);
+        status = stm32l0_spi_data(sfspi->spi, 0xff);
         stm32l0_sfspi_unselect(sfspi);
         
         if (status & SFLASH_SCUR_E_FAIL)
@@ -204,8 +195,8 @@ static bool stm32l0_sfspi_erase(void *context, uint32_t address)
     if (sfspi->ID[0] == SFLASH_MID_MICRON)
     {
         stm32l0_sfspi_select(sfspi);
-        stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_RDFS);
-        status = stm32l0_spi_data8(sfspi->spi, 0xff);
+        stm32l0_spi_data(sfspi->spi, SFLASH_CMD_RDFS);
+        status = stm32l0_spi_data(sfspi->spi, 0xff);
         stm32l0_sfspi_unselect(sfspi);
         
         if (status & SFLASH_FS_E_FAIL)
@@ -213,7 +204,7 @@ static bool stm32l0_sfspi_erase(void *context, uint32_t address)
             DOSFS_SFLASH_STATISTICS_COUNT(sflash_nor_efail);
 
             stm32l0_sfspi_select(sfspi);
-            stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_CLFS);
+            stm32l0_spi_data(sfspi->spi, SFLASH_CMD_CLFS);
             stm32l0_sfspi_unselect(sfspi);
             
             return false;
@@ -227,7 +218,7 @@ static bool stm32l0_sfspi_erase(void *context, uint32_t address)
             DOSFS_SFLASH_STATISTICS_COUNT(sflash_nor_efail);
 
             stm32l0_sfspi_select(sfspi);
-            stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_CLSR);
+            stm32l0_spi_data(sfspi->spi, SFLASH_CMD_CLSR);
             stm32l0_sfspi_unselect(sfspi);
 
             return false;
@@ -249,22 +240,19 @@ static bool stm32l0_sfspi_program(void *context, uint32_t address, const uint8_t
     do
     {
         stm32l0_sfspi_select(sfspi);
-        stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_WREN);
+        stm32l0_spi_data(sfspi->spi, SFLASH_CMD_WREN);
         stm32l0_sfspi_unselect(sfspi);
         
         stm32l0_sfspi_select(sfspi);
-        stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_RDSR);
-        status = stm32l0_spi_data8(sfspi->spi, 0xff);
+        stm32l0_spi_data(sfspi->spi, SFLASH_CMD_RDSR);
+        status = stm32l0_spi_data(sfspi->spi, 0xff);
         stm32l0_sfspi_unselect(sfspi);
     }
     while (!(status & SFLASH_SR_WEL));
 
     stm32l0_sfspi_select(sfspi);
-    stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_PAGE_PROGRAM);
-    stm32l0_spi_data8(sfspi->spi, (address >> 16));
-    stm32l0_spi_data8(sfspi->spi, (address >> 8));
-    stm32l0_spi_data8(sfspi->spi, (address >> 0));
-    stm32l0_spi_data(sfspi->spi, data, NULL, count);
+    stm32l0_spi_data32(sfspi->spi, (SFLASH_CMD_PAGE_PROGRAM << 24) | address);
+    stm32l0_spi_transmit(sfspi->spi, data, count);
     stm32l0_sfspi_unselect(sfspi);
 
     status = stm32l0_sfspi_wait(sfspi);
@@ -272,8 +260,8 @@ static bool stm32l0_sfspi_program(void *context, uint32_t address, const uint8_t
     if (sfspi->ID[0] == SFLASH_MID_MACRONIX)
     {
         stm32l0_sfspi_select(sfspi);
-        stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_RDSCUR);
-        status = stm32l0_spi_data8(sfspi->spi, 0xff);
+        stm32l0_spi_data(sfspi->spi, SFLASH_CMD_RDSCUR);
+        status = stm32l0_spi_data(sfspi->spi, 0xff);
         stm32l0_sfspi_unselect(sfspi);
         
         if (status & SFLASH_SCUR_P_FAIL)
@@ -288,8 +276,8 @@ static bool stm32l0_sfspi_program(void *context, uint32_t address, const uint8_t
     if (sfspi->ID[0] == SFLASH_MID_MICRON)
     {
         stm32l0_sfspi_select(sfspi);
-        stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_RDFS);
-        status = stm32l0_spi_data8(sfspi->spi, 0xff);
+        stm32l0_spi_data(sfspi->spi, SFLASH_CMD_RDFS);
+        status = stm32l0_spi_data(sfspi->spi, 0xff);
         stm32l0_sfspi_unselect(sfspi);
         
         if (status & SFLASH_FS_P_FAIL)
@@ -297,7 +285,7 @@ static bool stm32l0_sfspi_program(void *context, uint32_t address, const uint8_t
             DOSFS_SFLASH_STATISTICS_COUNT(sflash_nor_pfail);
 
             stm32l0_sfspi_select(sfspi);
-            stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_CLFS);
+            stm32l0_spi_data(sfspi->spi, SFLASH_CMD_CLFS);
             stm32l0_sfspi_unselect(sfspi);
             
             return false;
@@ -311,7 +299,7 @@ static bool stm32l0_sfspi_program(void *context, uint32_t address, const uint8_t
             DOSFS_SFLASH_STATISTICS_COUNT(sflash_nor_pfail);
 
             stm32l0_sfspi_select(sfspi);
-            stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_CLSR);
+            stm32l0_spi_data(sfspi->spi, SFLASH_CMD_CLSR);
             stm32l0_sfspi_unselect(sfspi);
 
             return false;
@@ -330,44 +318,41 @@ static void stm32l0_sfspi_read(void *context, uint32_t address, uint8_t *data, u
     DOSFS_SFLASH_STATISTICS_COUNT_N(sflash_nor_read, count);
 
     stm32l0_sfspi_select(sfspi);
-    stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_READ);
-    stm32l0_spi_data8(sfspi->spi, (address >> 16));
-    stm32l0_spi_data8(sfspi->spi, (address >> 8));
-    stm32l0_spi_data8(sfspi->spi, (address >> 0));
-    stm32l0_spi_data(sfspi->spi, NULL, data, count);
+    stm32l0_spi_data32(sfspi->spi, (SFLASH_CMD_READ << 24) | address);
+    stm32l0_spi_receive(sfspi->spi, data, count);
     stm32l0_sfspi_unselect(sfspi);
 }
 
-static void stm32l0_sfspi_callback(void *context, uint32_t notify)
+static void stm32l0_sfspi_callback(void *context, uint32_t events)
 {
     stm32l0_sfspi_t *sfspi = (stm32l0_sfspi_t*)context;
     
-    if (notify & STM32L0_SYSTEM_NOTIFY_SLEEP)
+    if (events & STM32L0_SYSTEM_EVENT_SLEEP)
     {
         if (sfspi->ID[0] == SFLASH_MID_MACRONIX)
         {
-            /* acquire/release will block shared interrupts and USB/MSC.
+            /* lock/unlock will block shared interrupts and USB/MSC.
              */
 
+            stm32l0_sfspi_lock(sfspi);
+            
             if (sfspi->state == STM32L0_SFSPI_STATE_READY)
             {
-                stm32l0_spi_acquire(sfspi->spi, 32000000, 0);
-
                 stm32l0_sfspi_select(sfspi);
-                stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_DPD);
+                stm32l0_spi_data(sfspi->spi, SFLASH_CMD_DPD);
                 stm32l0_sfspi_unselect(sfspi);
                 
-                stm32l0_spi_release(sfspi->spi);
-
                 sfspi->state = STM32L0_SFSPI_STATE_SLEEP;
             }
+
+            stm32l0_sfspi_unlock(sfspi);
         }
     }
 }
 
 static const  dosfs_sflash_interface_t stm32l0_sfspi_interface = {
-    stm32l0_sfspi_info,
-    stm32l0_sfspi_hook,
+    stm32l0_sfspi_capacity,
+    stm32l0_sfspi_notify,
     stm32l0_sfspi_lock,
     stm32l0_sfspi_unlock,
     stm32l0_sfspi_erase,
@@ -397,16 +382,16 @@ bool stm32l0_sfspi_initialize(stm32l0_spi_t *spi, const stm32l0_sfspi_params_t *
         stm32l0_sfspi_lock(sfspi);
 
         stm32l0_sfspi_select(sfspi);
-        stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_RDPD);
+        stm32l0_spi_data(sfspi->spi, SFLASH_CMD_RDPD);
         stm32l0_sfspi_unselect(sfspi);
 
         armv6m_core_udelay(50);
 
         stm32l0_sfspi_select(sfspi);
-        stm32l0_spi_data8(sfspi->spi, SFLASH_CMD_RDID);
-        sfspi->ID[0] = stm32l0_spi_data8(sfspi->spi, 0xff);
-        sfspi->ID[1] = stm32l0_spi_data8(sfspi->spi, 0xff);
-        sfspi->ID[2] = stm32l0_spi_data8(sfspi->spi, 0xff);
+        stm32l0_spi_data(sfspi->spi, SFLASH_CMD_RDID);
+        sfspi->ID[0] = stm32l0_spi_data(sfspi->spi, 0xff);
+        sfspi->ID[1] = stm32l0_spi_data(sfspi->spi, 0xff);
+        sfspi->ID[2] = stm32l0_spi_data(sfspi->spi, 0xff);
         stm32l0_sfspi_unselect(sfspi);
 
         stm32l0_sfspi_unlock(sfspi);
@@ -423,13 +408,13 @@ bool stm32l0_sfspi_initialize(stm32l0_spi_t *spi, const stm32l0_sfspi_params_t *
         else
         {
             sfspi->state = STM32L0_SFSPI_STATE_READY;
-            
-            stm32l0_system_register(&stm32l0_sfspi.notify, stm32l0_sfspi_callback, (void*)&stm32l0_sfspi, STM32L0_SYSTEM_NOTIFY_SLEEP);
 
-            dosfs_sflash_device.interface = &stm32l0_sfspi_interface;
-            dosfs_sflash_device.context = sfspi;
+            stm32l0_system_notify(&stm32l0_sfspi.notify, stm32l0_sfspi_callback, (void*)&stm32l0_sfspi, STM32L0_SYSTEM_EVENT_SLEEP);
         }
     }
+
+    dosfs_sflash_device.interface = &stm32l0_sfspi_interface;
+    dosfs_sflash_device.context = sfspi;
 
     return (sfspi->state == STM32L0_SFSPI_STATE_READY);
 }

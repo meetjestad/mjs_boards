@@ -50,8 +50,9 @@ int main( void )
 
   __libc_init_array();
 
+  delay(1);
 #if defined(USBCON)
-  USBDevice.begin();
+  USBDevice.init();
   USBDevice.attach();
 #endif
 
