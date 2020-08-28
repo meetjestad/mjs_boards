@@ -10,7 +10,7 @@ ArduinoCore-stm32l0 is targeted at ultra low power scenarios, sensor hubs, with 
 ### STMicroelectronics
  * [B-L072Z-LRWAN1](http://www.st.com/en/evaluation-tools/b-l072z-lrwan1.html)
  
-### Meet je Stad (https://www.meetjestad.net/)
+### [Meet je Stad](https://www.meetjestad.net/)
  * MJS2020-PROTO1
 ## Installing
 
