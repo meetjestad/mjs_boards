@@ -27,7 +27,7 @@
  */
 
 #pragma once
-
+#define NULL 0
 class Callback {
 public:
     Callback() : _callback(NULL), _context(NULL) {  }
