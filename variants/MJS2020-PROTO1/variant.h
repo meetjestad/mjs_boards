@@ -39,6 +39,13 @@
 
 #define STM32L0_CONFIG_PIN_VBUS           STM32L0_GPIO_PIN_NONE
 
+#define STM32L0_CONFIG_PIN_VBAT           STM32L0_GPIO_PIN_PC4
+#define STM32L0_CONFIG_CHANNEL_VBAT       ADC_CHANNEL_14
+#define STM32L0_CONFIG_VBAT_PERIOD        40
+#define STM32L0_CONFIG_VBAT_SCALE         ((float)1.27)
+
+
+
 #define USBCON
 
 /** Master clock frequency */
@@ -63,8 +70,8 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (30u)
-#define NUM_DIGITAL_PINS     (22u)
+#define PINS_COUNT           (32u)
+#define NUM_DIGITAL_PINS     (24u)
 #define NUM_ANALOG_INPUTS    (6u)
 #define NUM_ANALOG_OUTPUTS   (0u)
 
@@ -104,11 +111,13 @@ static const uint8_t BUTTON = PIN_BUTTON;
  * Serial interfaces
  */
 
-#define SERIAL_INTERFACES_COUNT 2
+#define SERIAL_INTERFACES_COUNT 3
 
 #define PIN_SERIAL1_RX        (0ul)
 #define PIN_SERIAL1_TX        (1ul)
 
+#define PIN_SERIAL2_RX        (0ul)
+#define PIN_SERIAL3_TX        (1ul)
 
 
 /*
@@ -153,6 +162,7 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #ifdef __cplusplus
 extern CDC  SerialUSB;
 extern Uart Serial1;
+extern Uart Serial2;
 #endif
 
 // These serial port names are intended to allow libraries and architecture-neutral
@@ -173,6 +183,7 @@ extern Uart Serial1;
 #define SERIAL_PORT_USBVIRTUAL      SerialUSB
 #define SERIAL_PORT_MONITOR         SerialUSB
 #define SERIAL_PORT_HARDWARE1       Serial1
+#define SERIAL_PORT_HARDWARE2       Serial2
 #define SERIAL_PORT_HARDWARE_OPEN2  Serial1
 
 // Alias Serial to SerialUSB

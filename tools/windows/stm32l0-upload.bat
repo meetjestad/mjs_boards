@@ -14,6 +14,6 @@ set count=1
 )
 
 :break
-
+ping -n 1 127.0.0.1 >NUL
 
 
