@@ -12,6 +12,7 @@ ArduinoCore-stm32l0 is targeted at ultra low power scenarios, sensor hubs, with 
  
 ### [Meet je Stad](https://www.meetjestad.net/)
  * MJS2020-PROTO1
+ * MJS2020-PROTO2
 ## Installing
 
 ### Board Manager
@@ -27,13 +28,13 @@ ArduinoCore-stm32l0 is targeted at ultra low power scenarios, sensor hubs, with 
 
 ##### Linux
 
- 1. Go to ~/.arduino15/packages/TleraCorp/hardware/stm32l0/```<VERSION>```/drivers/linux/
+ 1. Go to ~/.arduino15/packages/kittengineering/hardware/stm32l0/```<VERSION>```/drivers/linux/
  2. sudo cp *.rules /etc/udev/rules.d
  3. reboot
 
 #####  Windows
 
-###### STM32 BOOTLOADER driver setup for Tlera Corp boards
+###### STM32 BOOTLOADER driver setup for MJS2020 boards
 
  1. Download [Zadig](http://zadig.akeo.ie)
  2. Plugin STM32L0 board and toggle the RESET button while holding down the BOOT button
@@ -44,7 +45,7 @@ ArduinoCore-stm32l0 is targeted at ultra low power scenarios, sensor hubs, with 
  7. Select ```WinUSB (v6.1.7600.16385)``` as new driver
  8. Click ```Replace Driver```
 
-###### USB Serial driver setup for Tlera Corp boards (Window XP / Windows 7 only)
+###### USB Serial driver setup for MJS2020 boards (Window XP / Windows 7 only)
 
  1. Go to ~/AppData/Local/Arduino15/packages/kittengineering/hardware/stm32l0/```<VERSION>```/drivers/windows
  2. Right-click on ```dpinst_x86.exe``` (32 bit Windows) or ```dpinst_amd64.exe``` (64 bit Windows) and select ```Run as administrator```
