@@ -134,7 +134,7 @@ static uint8_t stm32l0_usart2_rx_fifo[32];
 extern const stm32l0_uart_params_t g_Serial2Params = {
     STM32L0_UART_INSTANCE_USART2,
     STM32L0_UART_IRQ_PRIORITY,
-    STM32L0_DMA_CHANNEL_DMA1_CH5_USART2_RX,
+    STM32L0_DMA_CHANNEL_DMA1_CH6_USART2_RX,
     STM32L0_DMA_CHANNEL_DMA1_CH4_USART2_TX,
     &stm32l0_usart2_rx_fifo[0],
     sizeof(stm32l0_usart2_rx_fifo),
@@ -187,6 +187,18 @@ extern const stm32l0_i2c_params_t g_WireParams = {
     {
         STM32L0_GPIO_PIN_PB6_I2C1_SCL,
         STM32L0_GPIO_PIN_PB7_I2C1_SDA,
+    },
+};
+
+
+extern const stm32l0_i2c_params_t g_Wire1Params = {
+    STM32L0_I2C_INSTANCE_I2C2,
+    STM32L0_I2C_IRQ_PRIORITY,
+    STM32L0_DMA_CHANNEL_DMA1_CH5_I2C2_RX,
+    STM32L0_DMA_CHANNEL_NONE,
+    {
+        STM32L0_GPIO_PIN_PB10_I2C2_SCL,
+        STM32L0_GPIO_PIN_PB11_I2C2_SDA,
     },
 };
 

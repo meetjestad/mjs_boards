@@ -181,13 +181,16 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 /*
  * Wire Interfaces
  */
-#define WIRE_INTERFACES_COUNT 1
+#define WIRE_INTERFACES_COUNT 2
 
 #define PIN_WIRE_SDA         (PB7_I2C)
 #define PIN_WIRE_SCL         (PB6_I2C)
 
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
+
+#define PIN_WIRE1_SDA        (PB11)
+#define PIN_WIRE1_SCL        (PB10)
 
 #define PIN_USB_DM           (PA11)
 #define PIN_USB_DP           (PA12)
