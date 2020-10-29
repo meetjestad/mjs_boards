@@ -70,7 +70,7 @@ B-L072Z-LRWAN1.menu.opt.o3.build.flags.ldspecs=
 # ---------------------------------------
 MJS2020-PROTO1.name=MJS2020-PROTO1
 MJS2020-PROTO1.vid.0=0x1209
-MJS2020-PROTO1.pid.0=0x0002
+MJS2020-PROTO1.pid.0=0x3320
 
 MJS2020-PROTO1.upload.tool=stm32l0_dfu
 MJS2020-PROTO1.upload.protocol=dfu
@@ -145,7 +145,7 @@ MJS2020-PROTO2.build.board=MJS2020-PROTO2
 MJS2020-PROTO2.build.arch=stm32l0
 MJS2020-PROTO2.build.core=arduino
 MJS2020-PROTO2.build.vid=0x1209
-MJS2020-PROTO2.build.pid=0x0003
+MJS2020-PROTO2.build.pid=0x3320
 MJS2020-PROTO2.build.did=0xffff
 MJS2020-PROTO2.build.usb_manufacturer="KITT Engineering"
 MJS2020-PROTO2.build.usb_product="STM32L0"
