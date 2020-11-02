@@ -69,6 +69,46 @@ extern "C"
  *        Pins
  *----------------------------------------------------------------------------*/
 
+enum {
+    PB6 = 0,
+    PB7 = 1,
+    PB13 = 2,
+    PB12 = 3,
+    PB10 = 4,
+    PB11 = 5,
+    PB15 = 6,
+    PB14 = 7,
+    PA0 = 8,
+    PB8 = 9,
+    PA15 = 10,
+    PB5 = 11,
+    PB4 = 12,
+    PB3 = 13,
+    // These are mapped twice
+    PB7_I2C = 14,
+    PB6_I2C = 15,
+    PC4 = 16,
+    PC5 = 17,
+    /* 18 - 21 are unused? */
+    PA11 = 22,
+    PA12 = 23,
+    PA7 = 24,
+    PB1 = 25,
+    PB2 = 26,
+    PA8 = 27,
+    PC10 = 28,
+    PC11 = 29,
+    PA2 = 30,
+    PA3 = 31,
+    PD2 = 32,
+    PC7 = 33,
+    PC8 = 34,
+    PC6 = 35,
+    PA9 = 36,
+    PA10 = 37,
+    PC9 = 38,
+};
+
 // Number of pins defined in PinDescription array
 #define PINS_COUNT           (39u)
 #define NUM_DIGITAL_PINS     (31u)
@@ -76,11 +116,15 @@ extern "C"
 #define NUM_ANALOG_OUTPUTS   (0u)
 
 // LEDs
-
-#define PIN_LED              (33ul)
-#define PIN_LED2             (35ul)
-#define PIN_LED3             (35ul)
+#define PIN_LED_RED          (PC7)
+#define PIN_LED_GREEN        (PC8)
+#define PIN_LED_BLUE         (PC6)
 #define LED_BUILTIN          PIN_LED
+
+// Regulator enable pins
+#define PIN_ENABLE_5V        (PC10)
+#define PIN_ENABLE_3V_SENS   (PC11)
+#define PIN_ENABLE_3V_GPS    (PA8)
 
 /*
  * Analog pins
@@ -104,7 +148,7 @@ static const uint8_t A5  = PIN_A5;
 /*
  * Other pins
  */
-#define PIN_BUTTON           (6l)
+#define PIN_BUTTON           (PD2)
 static const uint8_t BUTTON = PIN_BUTTON;
 
 /*
@@ -113,11 +157,11 @@ static const uint8_t BUTTON = PIN_BUTTON;
 
 #define SERIAL_INTERFACES_COUNT 3
 
-#define PIN_SERIAL1_RX        (37ul)
-#define PIN_SERIAL1_TX        (36ul)
+#define PIN_SERIAL1_RX        (PA10)
+#define PIN_SERIAL1_TX        (PA9)
 
-#define PIN_SERIAL2_RX        (31ul)
-#define PIN_SERIAL2_TX        (30ul)
+#define PIN_SERIAL2_RX        (PA3)
+#define PIN_SERIAL2_TX        (PA2)
 
 
 /*
@@ -125,9 +169,9 @@ static const uint8_t BUTTON = PIN_BUTTON;
  */
 #define SPI_INTERFACES_COUNT 1
 
-#define PIN_SPI_MISO         (12u)
-#define PIN_SPI_MOSI         (11u)
-#define PIN_SPI_SCK          (13u)
+#define PIN_SPI_MISO         (PB4)
+#define PIN_SPI_MOSI         (PB5)
+#define PIN_SPI_SCK          (PB3)
 
 static const uint8_t SS   = 10;
 static const uint8_t MOSI = PIN_SPI_MOSI;
@@ -137,16 +181,19 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 /*
  * Wire Interfaces
  */
-#define WIRE_INTERFACES_COUNT 1
+#define WIRE_INTERFACES_COUNT 2
 
-#define PIN_WIRE_SDA         (14u)
-#define PIN_WIRE_SCL         (15u)
+#define PIN_WIRE_SDA         (PB7_I2C)
+#define PIN_WIRE_SCL         (PB6_I2C)
 
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
 
-#define PIN_USB_DM           (22ul)
-#define PIN_USB_DP           (23ul)
+#define PIN_WIRE1_SDA        (PB11)
+#define PIN_WIRE1_SCL        (PB10)
+
+#define PIN_USB_DM           (PA11)
+#define PIN_USB_DP           (PA12)
 
 
 #define PWM_INSTANCE_COUNT    0
