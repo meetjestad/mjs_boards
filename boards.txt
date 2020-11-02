@@ -82,7 +82,7 @@ MJS2020-PROTO1.upload.native_usb=false
 
 MJS2020-PROTO1.build.mcu=cortex-m0plus
 MJS2020-PROTO1.build.f_cpu=32000000L
-MJS2020-PROTO1.build.board=MJS2020-PROTO1
+MJS2020-PROTO1.build.board=MJS2020_PROTO1
 MJS2020-PROTO1.build.arch=stm32l0
 MJS2020-PROTO1.build.core=arduino
 MJS2020-PROTO1.build.vid=0x1209
@@ -141,7 +141,7 @@ MJS2020-PROTO2.upload.native_usb=false
 
 MJS2020-PROTO2.build.mcu=cortex-m0plus
 MJS2020-PROTO2.build.f_cpu=32000000L
-MJS2020-PROTO2.build.board=MJS2020-PROTO2
+MJS2020-PROTO2.build.board=MJS2020_PROTO2
 MJS2020-PROTO2.build.arch=stm32l0
 MJS2020-PROTO2.build.core=arduino
 MJS2020-PROTO2.build.vid=0x1209
