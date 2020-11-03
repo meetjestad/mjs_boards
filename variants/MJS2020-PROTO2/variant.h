@@ -119,7 +119,7 @@ enum {
 #define PIN_LED_RED          (PC7)
 #define PIN_LED_GREEN        (PC8)
 #define PIN_LED_BLUE         (PC6)
-#define LED_BUILTIN          PIN_LED
+#define LED_BUILTIN          PIN_LED_RED
 
 // Regulator enable pins
 #define PIN_ENABLE_5V        (PC10)
