@@ -248,7 +248,7 @@ size_t TwoWire::requestFrom(uint8_t address, size_t size, uint32_t iaddress, uin
         _rx_write = size;
     }
 
-    return size;
+    return _rx_write;
 }
 
 size_t TwoWire::write(uint8_t data)
