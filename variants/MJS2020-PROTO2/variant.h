@@ -126,6 +126,15 @@ enum {
 #define PIN_ENABLE_3V_SENS   (PC11)
 #define PIN_ENABLE_3V_GPS    (PA8)
 
+// LoRa Radio pins
+#define PIN_LORA_SS          (PA15)
+#define PIN_LORA_RST         (PA7)
+#define PIN_LORA_DIO1        (PB1)
+#define PIN_LORA_BUSY        (PB2)
+
+#define PIN_BATTERY          (PC4)
+#define PIN_BOARD_ID         (PB0)
+
 /*
  * Analog pins
  */
