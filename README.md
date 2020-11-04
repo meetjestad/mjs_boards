@@ -6,13 +6,9 @@ ArduinoCore-stm32l0 is targeted at ultra low power scenarios, sensor hubs, with 
 
 
 ## Supported boards
-
-### STMicroelectronics
- * [B-L072Z-LRWAN1](http://www.st.com/en/evaluation-tools/b-l072z-lrwan1.html)
- 
-### [Meet je Stad](https://www.meetjestad.net/)
  * MJS2020-PROTO1
  * MJS2020-PROTO2
+
 ## Installing
 
 ### Board Manager
@@ -66,11 +62,6 @@ ArduinoCore-stm32l0 is targeted at ultra low power scenarios, sensor hubs, with 
  3. Create a folder named ```hardware```, if it does not exist, and change directories to it
  4. Clone this repo: ```git clone https://github.com/kittengineering/ArduinoCore-stm32l0.git kittengineering/stm32l0```
  5. Restart the Arduino IDE
-
-## Setup correct solderlinks for B-L072Z-LRWAN1 in order to make the native USB work
-
-SB15 and SB16 should be soldered in order to make the USB D+ and USB D- working.
-SB37 solderlink should be removed/cleared to disable the NRST from the embedded ST-Link
 
 
 ## Recovering from a faulty sketch
