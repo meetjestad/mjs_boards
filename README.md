@@ -13,27 +13,6 @@ To set this up, you can use the Arduino IDE boards manager:
  - Close the preferences, and open Tools -> Board -> Boards Manager...
  - Find the "Meet je stad! AVR Boards" in the list, and click Install
 
- Alternatively, you can manually install the boards files by heading
- over to the latest release on github, downloading the `mjs_boards.zip`
- file and unpacking that into a `hardware/meetjesad` directory inside
- your sketchbook (so you would have
- `/path/to/sketchbook/hardware/meetjestad/avr/boards.txt`)
-
-Making a release
-================
- - Create a zipfile containing the `avr` directory:
-
-       zip -r mjs_boards.zip avr
-
- - Update `package_meetjestad.net_index.json` with the (not yet
-   existing) url, checksum and size for the new zipfile.
- - Create and push a tag.
- - Create a release for the tag on github and attach the zipfile.
-
-It seems a bit odd to create the tarball before tagging the release, but
-this is because the tarball checksum must be in the json file, which is
-impossible to do otherwise.
-
 License
 =======
 The files in this repository are distributed under various licenses.
