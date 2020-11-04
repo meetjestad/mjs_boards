@@ -1,0 +1,6 @@
+# MJS2020 board, set permissions for raw USB access
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="3320", MODE="664", GROUP="dialout"
+# MJS2020 board, force ModemManager to ignore it (only needed for some older versions of MM)
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="3320", ENV{ID_MM_DEVICE_IGNORE}="1"
+# STM32 system bootloader in DFU mode, set permissions for raw USB access
+ACTION=="add", SUBSYSTEM=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", MODE="664", GROUP="dialout"
