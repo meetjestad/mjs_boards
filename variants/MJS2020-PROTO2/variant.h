@@ -26,8 +26,7 @@
  * WITH THE SOFTWARE.
  */
 
-#ifndef _VARIANT_MJS2020-PROTO2_
-#define _VARIANT_MJS2020-PROTO2_
+#pragma once
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -244,6 +243,3 @@ extern Uart Serial2;
 
 // Alias Serial to SerialUSB
 #define Serial                      SerialUSB
-
-#endif /*_VARIANT_MJS2020-PROTO2_ */
-
