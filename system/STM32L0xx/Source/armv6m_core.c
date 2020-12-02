@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2014-2020 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -35,29 +35,12 @@ typedef struct _armv6m_core_control_t {
 
 static armv6m_core_control_t armv6m_core_control;
 
-static void armv6m_core_stack_fill(void)
+void __armv6m_core_initialize(void)
 {
-    __asm__(
-        "  ldr     r0, =0xdeadbeef                     \n"
-        "  ldr     r1, =__StackLimit                   \n"
-        "  mov     r2, sp                              \n"
-        "  sub     r2, r1                              \n"
-        ".Lrepeat:                                     \n"
-        "  sub     r2, #4                              \n"
-        "  str     r0, [r1, r2]                        \n"
-        "  bne     .Lrepeat                            \n"
-        :
-        :
-        );
-}
-
-void armv6m_core_initialize(void)
-{
-    armv6m_pendsv_initialize();
-    armv6m_svcall_initialize();
-    armv6m_systick_initialize();
-    armv6m_event_initialize();
-    armv6m_core_stack_fill();
+    __armv6m_svcall_initialize();
+    __armv6m_pendsv_initialize();
+    __armv6m_systick_initialize();
+    __armv6m_work_initialize();
 }
 
 void armv6m_core_udelay(uint32_t delay)
@@ -67,32 +50,22 @@ void armv6m_core_udelay(uint32_t delay)
     if (armv6m_core_control.clock != SystemCoreClock)
     {
         armv6m_core_control.clock = SystemCoreClock;
-        armv6m_core_control.scale = SystemCoreClock / 1000000;
+        armv6m_core_control.scale = SystemCoreClock / 15625;
     }
 
-    n = (delay * armv6m_core_control.scale + 2) / 3;
+    n = (delay * armv6m_core_control.scale + 255) / 256;
 
     __asm__ __volatile__(
                          "1: sub  %0, #1 \n"
+                         "   nop         \n"
                          "   bne  1b     \n"
                          : "+r" (n));
 }
 
-static __attribute__((naked)) void armv6m_core_call_indirect(void *context)
-{
-    __asm__(
-        "  mov     r12, r0                             \n"
-        "  mov     r0, r1                              \n"
-        "  bx      r12                                 \n"
-        :
-        :
-        );
-}
-
 void armv6m_core_c_function(armv6m_core_callback_t *callback, void *function)
 {
-    callback->routine = armv6m_core_call_indirect;
-    callback->context = function;
+    callback->routine = function;
+    callback->context = NULL;
 }
 
 /* The format of a member pointer is defined in the C++ ABI.
@@ -120,3 +93,7 @@ void armv6m_core_cxx_method(armv6m_core_callback_t *callback, const void *method
     callback->context = (void*)((uintptr_t)object + adj);
 }
 
+static void __empty() { }
+
+void __armv6m_systick_initialize(void) __attribute__ ((weak, alias("__empty")));
+void __armv6m_work_initialize(void) __attribute__ ((weak, alias("__empty")));

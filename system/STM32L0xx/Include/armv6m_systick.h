@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2017-2020 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -33,12 +33,11 @@
 extern "C" {
 #endif
 
-extern void armv6m_systick_initialize(void);
+extern void __armv6m_systick_initialize(void);
+
 extern void armv6m_systick_enable(void);
 extern void armv6m_systick_disable(void);
 extern uint32_t armv6m_systick_micros(void);
-extern uint32_t armv6m_systick_millis(void);
-extern void armv6m_systick_delay(uint32_t delay);
 
 #ifdef __cplusplus
 }

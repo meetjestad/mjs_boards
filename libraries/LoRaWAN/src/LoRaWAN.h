@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2017-2020 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -116,7 +116,7 @@ public:
     int begin(const struct LoRaWANBand &band);
 
     int joinOTAA();
-    int joinOTAA(const char *appEui, const char *appKey, const char *devEui = NULL);
+    int joinOTAA(const char *appEui, const char *appKey, const char *devEui = nullptr);
     int rejoinOTAA();
 
     int joinABP();
@@ -148,7 +148,7 @@ public:
     int parsePacket();
     virtual int available();
     virtual int read();
-    virtual size_t read(uint8_t *buffer, size_t size);
+    virtual int read(uint8_t *buffer, size_t size);
     virtual int peek();
     virtual void flush();
     uint8_t remotePort();
@@ -166,7 +166,9 @@ public:
     void onReceive(Callback callback);
     void onTransmit(void(*callback)(void));
     void onTransmit(Callback callback);
-
+    void enableWakeup();
+    void disableWakeup();
+    
     int setAppEui(const char *appEui);
     int setAppKey(const char *appKey);
     int setDevEui(const char *devEui);
@@ -214,8 +216,11 @@ public:
     int setDownLinkDwellTime(bool enable);
     int setMaxEIRP(float eirp);
     int setAntennaGain(float gain);
+    int setSystemMaxRxError(unsigned int error);
 
     int setDutyCycle(bool enable);
+    int setRxWindows(bool enable);
+    int setTxContinuousWave(unsigned long frequency, float power, unsigned long seconds);
     int setComplianceTest(bool enable);
 
     int setBatteryLevel(unsigned int level);
@@ -285,6 +290,8 @@ private:
     Callback          _receiveCallback;
     Callback          _transmitCallback;
 
+    bool              _wakeup;
+    
     void              _saveSession();
     bool              _restoreSession();
     void              _saveADR();
@@ -307,6 +314,7 @@ private:
     static bool       _eepromProgram(uint32_t address, const uint8_t *data, uint32_t size);
     static bool       _eepromRead(uint32_t address, uint8_t *data, uint32_t size);
     static void       _eepromSync(class LoRaWANClass *self);
+    static void       _eepromDone(class LoRaWANClass *self);
 
     static uint8_t    __GetBatteryLevel();
     static void       __McpsJoin(void);

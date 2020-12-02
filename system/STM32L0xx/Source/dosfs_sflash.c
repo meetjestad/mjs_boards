@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2016-2020 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -27,8 +27,6 @@
  */
 
 #include "dosfs_sflash.h"
-
-#include <stdio.h>
 
 #if (DOSFS_CONFIG_SFLASH_DEBUG == 1)
 #include <assert.h>
@@ -1557,7 +1555,7 @@ static int dosfs_sflash_release(void *context)
     printf("SFLASH_RELEASE\n");
 #endif /* (DOSFS_CONFIG_SFLASH_SIMULATE_TRACE == 1) */
 
-    (*sflash->interface->notify)(sflash->context, NULL, NULL);
+    (*sflash->interface->hook)(sflash->context, NULL, NULL);
 
     return status;
 }
@@ -1572,27 +1570,34 @@ static int dosfs_sflash_info(void *context, uint8_t *p_media, uint8_t *p_write_p
     printf("SFLASH_INFO\n");
 #endif /* (DOSFS_CONFIG_SFLASH_SIMULATE_TRACE == 1) */
 
-    /* One sector needs to be put away as reclaim sector. There is the starting block of each erase block.
-     * There are XLATE/XLATE2 entries for each set of 128 blocks.
-     */
+    if (sflash->state == DOSFS_SFLASH_STATE_NOT_FORMATTED)
+    {
+        status = F_ERR_ONDRIVE;
+    }
+    else
+    {
+        /* One sector needs to be put away as reclaim sector. There is the starting block of each erase block.
+         * There are XLATE/XLATE2 entries for each set of 128 blocks.
+         */
 
-    blkcnt = (((sflash->data_limit - sflash->data_start) / DOSFS_SFLASH_ERASE_SIZE) -1) * ((DOSFS_SFLASH_ERASE_SIZE / DOSFS_SFLASH_BLOCK_SIZE) -1) -2 - (2 * sflash->xlate_count);
-
-    *p_media = DOSFS_MEDIA_SFLASH;
-    *p_write_protected = false;
-    *p_block_count = blkcnt;
-    *p_au_size = 8;
-    *p_serial = 0;
-
+        blkcnt = (((sflash->data_limit - sflash->data_start) / DOSFS_SFLASH_ERASE_SIZE) -1) * ((DOSFS_SFLASH_ERASE_SIZE / DOSFS_SFLASH_BLOCK_SIZE) -1) -2 - (2 * sflash->xlate_count);
+        
+        *p_media = DOSFS_MEDIA_SFLASH;
+        *p_write_protected = false;
+        *p_block_count = blkcnt;
+        *p_au_size = 8;
+        *p_serial = sflash->serial;
+    }
+    
     return status;
 }
 
-static int dosfs_sflash_notify(void *context, dosfs_device_notify_callback_t callback, void *cookie)
+static int dosfs_sflash_hook(void *context, dosfs_device_lock_callback_t callback, void *cookie)
 {
     dosfs_sflash_t *sflash = (dosfs_sflash_t*)context;
     int status = F_NO_ERROR;
 
-    (*sflash->interface->notify)(sflash->context, callback, cookie);
+    (*sflash->interface->hook)(sflash->context, callback, cookie);
 
     return status;
 }
@@ -1606,23 +1611,30 @@ static int dosfs_sflash_format(void *context)
     printf("SFLASH_FORMAT\n");
 #endif /* (DOSFS_CONFIG_SFLASH_SIMULATE_TRACE == 1) */
 
-    (*sflash->interface->lock)(sflash->context);
-
-    dosfs_sflash_ftl_format(sflash);
-
-    if (!dosfs_sflash_ftl_mount(sflash))
+    if (sflash->state == DOSFS_SFLASH_STATE_NOT_FORMATTED)
     {
-        sflash->state = DOSFS_SFLASH_STATE_NOT_FORMATTED;
-
         status = F_ERR_ONDRIVE;
     }
     else
     {
-        sflash->state = DOSFS_SFLASH_STATE_READY;
+        (*sflash->interface->lock)(sflash->context);
+
+        dosfs_sflash_ftl_format(sflash);
+        
+        if (!dosfs_sflash_ftl_mount(sflash))
+        {
+            sflash->state = DOSFS_SFLASH_STATE_NOT_FORMATTED;
+            
+            status = F_ERR_ONDRIVE;
+        }
+        else
+        {
+            sflash->state = DOSFS_SFLASH_STATE_READY;
+        }
+        
+        (*sflash->interface->unlock)(sflash->context);
     }
-
-    (*sflash->interface->unlock)(sflash->context);
-
+    
     return status;
 }
 
@@ -1745,7 +1757,7 @@ static int dosfs_sflash_sync(void *context)
 static const dosfs_device_interface_t dosfs_sflash_interface = {
     dosfs_sflash_release,
     dosfs_sflash_info,
-    dosfs_sflash_notify,
+    dosfs_sflash_hook,
     dosfs_sflash_format,
     dosfs_sflash_erase,
     dosfs_sflash_discard,
@@ -1757,8 +1769,8 @@ static const dosfs_device_interface_t dosfs_sflash_interface = {
 int dosfs_sflash_init(uint32_t data_start)
 {
     dosfs_sflash_t *sflash = (dosfs_sflash_t*)&dosfs_sflash;
+    uint32_t capacity, serial;
     int status = F_NO_ERROR;
-    uint32_t data[DOSFS_BLK_SIZE / sizeof(uint32_t)];
 
     if (!dosfs_sflash_device.interface)
     {
@@ -1775,8 +1787,11 @@ int dosfs_sflash_init(uint32_t data_start)
     
         if (sflash->state == DOSFS_SFLASH_STATE_NONE)
         {
+            (*sflash->interface->info)(sflash->context, &capacity, &serial);
+
+            sflash->serial = serial;
             sflash->data_start = data_start;
-            sflash->data_limit = (*sflash->interface->capacity)(sflash->context);
+            sflash->data_limit = capacity;
 
             if (sflash->data_limit <= sflash->data_start)
             {
@@ -1795,7 +1810,7 @@ int dosfs_sflash_init(uint32_t data_start)
                 {
                     (*sflash->interface->unlock)(sflash->context);
 
-                    status = dosfs_device_format(&dosfs_device, (uint8_t*)data);
+                    status = dosfs_device_format(&dosfs_device, (uint8_t*)&dosfs_device.cache[0]);
 
                     if (status == F_NO_ERROR)
                     {
@@ -1816,7 +1831,7 @@ int dosfs_sflash_init(uint32_t data_start)
                 }
             }
         }
-
+        
         dosfs_device.lock = 0;
     }
 

@@ -1,22 +1,22 @@
-TOOLS    = /opt/gcc-arm-none-eabi-4.8.3-2014q1
-CPP      = $(TOOLS)/bin/arm-none-eabi-cpp
-CC       = $(TOOLS)/bin/arm-none-eabi-gcc
-CXX      = $(TOOLS)/bin/arm-none-eabi-g++
-AS       = $(TOOLS)/bin/arm-none-eabi-as
-AR       = $(TOOLS)/bin/arm-none-eabi-ar
-LD       = $(TOOLS)/bin/arm-none-eabi-ld
-CFLAGS   = -mcpu=cortex-m0plus -mthumb -c -g -Os $(WARNINGS) -std=gnu11 -ffunction-sections -fdata-sections -nostdlib -MMD $(EXTRAS) $(DEFINES) $(INCLUDES)
+TOOLS	 = ~/.arduino15/packages/arduino/tools/arm-none-eabi-gcc/7-2017q4/
+CPP	 = $(TOOLS)/bin/arm-none-eabi-cpp
+CC	 = $(TOOLS)/bin/arm-none-eabi-gcc
+CXX	 = $(TOOLS)/bin/arm-none-eabi-g++
+AS	 = $(TOOLS)/bin/arm-none-eabi-as
+AR	 = $(TOOLS)/bin/arm-none-eabi-ar
+LD	 = $(TOOLS)/bin/arm-none-eabi-ld
+CFLAGS	 = -mcpu=cortex-m0plus -mthumb -c -g -Os $(WARNINGS) -std=gnu11 -ffunction-sections -fdata-sections -nostdlib -MMD $(EXTRAS) $(DEFINES) $(INCLUDES)
 CXXFLAGS = -mcpu=cortex-m0plus -mthumb -c -g -Os $(WARNINGS) -std=gnu++11 -ffunction-sections -fdata-sections -fno-threadsafe-statics -nostdlib -fno-rtti -fno-exceptions -MMD $(EXTRAS) $(DEFINES) $(INCLUDES)
-ASFLAGS  = -c -g -x assembler-with-cpp $(EXTRAS) $(DEFINES) $(INCLUDES)
-LDFLAGS = -g -Os -mcpu=cortex-m0plus -mthumb -mabi=aapcs -mfloat-abi=soft -Wl,--gc-sections,--no-undefined -T../../variants/Cricket-L082CZ/linker_scripts/STM32L082CZ_FLASH.ld --specs=nano.specs
+ASFLAGS	 = -c -g -x assembler-with-cpp $(EXTRAS) $(DEFINES) $(INCLUDES)
+LDFLAGS = -g -Os -mcpu=cortex-m0plus -mthumb -mabi=aapcs -mfloat-abi=soft -Wl,--gc-sections,--no-undefined -T../../variants/Grasshopper-L082CZ/linker_scripts/STM32L082CZ_FLASH.ld --specs=nano.specs
 WARNINGS = -Wall -Wextra -Wno-unused-parameter
-EXTRAS   = -DSTM32L082xx -march=armv6-m -mthumb -mabi=aapcs -mfloat-abi=soft
-DEFINES  = -D_SYSTEM_CORE_CLOCK_=32000000 -DDOSFS_SDCARD=0 -DDOSFS_SFLASH=1 -DARDUINO_MAKEFILE
+EXTRAS	 = -DSTM32L082xx -march=armv6-m -mthumb -mabi=aapcs -mfloat-abi=soft
+DEFINES	 = -D_SYSTEM_CORE_CLOCK_=32000000 -DDOSFS_SDCARD=0 -DDOSFS_SFLASH=1 -DARDUINO_MAKEFILE
 INCLUDES = \
 	-I../../system/CMSIS/Include \
 	-I../../system/CMSIS/Device/ST/STM32L0xx/Include \
 	-I../../system/STM32L0xx/Include \
-	-I../../variants/Cricket-L082CZ \
+	-I../../variants/Grasshopper-L082CZ \
 	-I../../libraries/CayenneLPP/src \
 	-I../../libraries/DOSFS/src \
 	-I../../libraries/EEPROM/src \
@@ -44,7 +44,7 @@ SRCS = \
 	../../libraries/STM32L0/src/STM32L0.cpp \
 	../../libraries/TimerMillis/src/TimerMillis.cpp \
 	../../libraries/Wire/src/Wire.cpp \
-	../../variants/Cricket-L082CZ/variant.cpp \
+	../../variants/Grasshopper-L082CZ/variant.cpp \
 	avr/dtostrf.c \
 	avr/eeprom.c \
 	avr/fdevopen.c \
@@ -55,7 +55,6 @@ SRCS = \
 	HardwareSerial1.cpp \
 	HardwareSerial2.cpp \
 	HardwareSerial3.cpp \
-	HID.cpp \
 	IPAddress.cpp \
 	Print.cpp \
 	RingBuffer.cpp \
@@ -92,7 +91,7 @@ OBJS = \
 	../../libraries/STM32L0/src/STM32L0.o \
 	../../libraries/TimerMillis/src/TimerMillis.o \
 	../../libraries/Wire/src/Wire.o \
-	../../variants/Cricket-L082CZ/variant.o \
+	../../variants/Grasshopper-L082CZ/variant.o \
 	avr/dtostrf.o \
 	avr/eeprom.o \
 	avr/fdevopen.o \
@@ -103,7 +102,6 @@ OBJS = \
 	HardwareSerial1.o \
 	HardwareSerial2.o \
 	HardwareSerial3.o \
-	HID.o \
 	IPAddress.o \
 	Print.o \
 	RingBuffer.o \
@@ -127,7 +125,7 @@ OBJS = \
 	wiring_pulse.o \
 	wiring_shift.o \
 
-all:: flash.bin
+all:: flash.elf
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -141,10 +139,7 @@ all:: flash.bin
 flash.elf: $(OBJS)
 	$(CC) $(LDFLAGS) $(OBJS) -L../../system/STM32L0xx/Lib -lstm32l082xx -lm -lc -lgcc -lstm32l082xx -o flash.elf
 
-flash.bin:: flash.elf
-	arm-none-eabi-objcopy -O binary flash.elf flash.bin
-
 clean::
-	rm -f flash.bin flash.elf *~ *.o *.d $(OBJS)
+	rm -f flash.elf *~ *.o *.d $(OBJS)
 
 -include $(OBJS:.o=.d)

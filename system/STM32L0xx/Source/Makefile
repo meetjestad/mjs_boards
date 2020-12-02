@@ -1,15 +1,16 @@
-TOOLS    = /opt/gcc-arm-none-eabi-4.8.3-2014q1
-CPP      = $(TOOLS)/bin/arm-none-eabi-cpp
-CC       = $(TOOLS)/bin/arm-none-eabi-gcc
-CXX      = $(TOOLS)/bin/arm-none-eabi-g++
-AS       = $(TOOLS)/bin/arm-none-eabi-as
-AR       = $(TOOLS)/bin/arm-none-eabi-ar
-LD       = $(TOOLS)/bin/arm-none-eabi-ld
-CFLAGS   = -mcpu=cortex-m0plus -mthumb -c -g -Os $(WARNINGS) -std=c99 -ffunction-sections -fdata-sections -nostdlib -MMD $(EXTRAS) $(DEFINES) $(INCLUDES)
-ASFLAGS  = -c -g -x assembler-with-cpp $(EXTRAS) $(DEFINES) $(INCLUDES)
+TOOLS	 = ~/.arduino15/packages/arduino/tools/arm-none-eabi-gcc/7-2017q4/
+#TOOLS	  = ~/.arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/
+CPP	 = $(TOOLS)/bin/arm-none-eabi-cpp
+CC	 = $(TOOLS)/bin/arm-none-eabi-gcc
+CXX	 = $(TOOLS)/bin/arm-none-eabi-g++
+AS	 = $(TOOLS)/bin/arm-none-eabi-as
+AR	 = $(TOOLS)/bin/arm-none-eabi-ar
+LD	 = $(TOOLS)/bin/arm-none-eabi-ld
+CFLAGS	 = -mcpu=cortex-m0plus -mthumb -c -g -Os $(WARNINGS) -std=c99 -ffunction-sections -fdata-sections -nostdlib -MMD $(EXTRAS) $(DEFINES) $(INCLUDES)
+ASFLAGS	 = -c -g -x assembler-with-cpp $(EXTRAS) $(DEFINES) $(INCLUDES)
 WARNINGS = -Wall -Wextra -Wno-unused-parameter
-EXTRAS   = -march=armv6-m -mthumb -mabi=aapcs -mfloat-abi=soft
-DEFINES  =
+EXTRAS	 = -march=armv6-m -mthumb -mabi=aapcs -mfloat-abi=soft
+DEFINES	 = -DUSBD_LPM_ENABLE=0 -DUSBD_BCD_ENABLE=0
 INCLUDES = \
 	-I../../../system/CMSIS/Include \
 	-I../../../system/CMSIS/Device/ST/STM32L0xx/Include \
@@ -24,9 +25,6 @@ INCLUDES = \
 	-I../../../system/STM32L0xx/Source/LoRa/Utilities \
 	-I../../../system/STM32L0xx/Source/USB/HAL/Inc \
 	-I../../../system/STM32L0xx/Source/USB/Core/Inc \
-	-I../../../system/STM32L0xx/Source/USB/Class/CDC/Inc \
-	-I../../../system/STM32L0xx/Source/USB/Class/MSC/Inc \
-	-I../../../system/STM32L0xx/Source/USB/Class/HID/Inc \
 	-I../../../system/STM32L0xx/Source/USB \
 	-I../../../system/STM32L0xx/Include \
 	-I. 
@@ -54,26 +52,20 @@ SRCS = \
 	./LoRa/Radio/sx1276/sx1276.c \
 	./LoRa/System/timer.c \
 	./LoRa/Utilities/utilities.c \
-	./USB/Class/CDC/Src/usbd_cdc.c \
-	./USB/Class/MSC/Src/usbd_msc.c \
-	./USB/Class/MSC/Src/usbd_msc_bot.c \
-	./USB/Class/MSC/Src/usbd_msc_data.c \
-	./USB/Class/MSC/Src/usbd_msc_scsi.c \
-	./USB/Class/HID/Src/usbd_hid.c \
 	./USB/Core/Src/usbd_core.c \
 	./USB/Core/Src/usbd_ctlreq.c \
 	./USB/Core/Src/usbd_ioreq.c \
 	./USB/HAL/Src/stm32l0xx_hal_pcd.c \
 	./USB/HAL/Src/stm32l0xx_hal_pcd_ex.c \
-	./USB/usbd_cdc_msc.c \
+	./USB/HAL/Src/stm32l0xx_ll_usb.c \
 	./USB/usbd_conf.c \
 	./USB/usbd_desc.c \
-	armv6m_atomic.S \
+	armv6m_atomic.c \
 	armv6m_core.c \
-	armv6m_event.c \
 	armv6m_pendsv.c \
 	armv6m_svcall.c \
 	armv6m_systick.c \
+	armv6m_work.c \
 	dosfs_core.c \
 	dosfs_device.c \
 	dosfs_sflash.c \
@@ -99,8 +91,9 @@ SRCS = \
 	stm32l0_system.c \
 	stm32l0_timer.c \
 	stm32l0_uart.c \
+	stm32l0_usbd_class.c \
 	stm32l0_usbd_cdc.c \
-	stm32l0_usbd_hid.c
+	stm32l0_usbd_msc.c
 
 SRCS_L052 = $(SRCS) startup_stm32l052xx.S
 OBJS_L052 = $(patsubst %.c,_out/stm32l052xx/%.o,$(filter-out %.S,$(SRCS_L052))) $(patsubst %.S,_out/stm32l052xx/%.o,$(filter-out %.c,$(SRCS_L052)))

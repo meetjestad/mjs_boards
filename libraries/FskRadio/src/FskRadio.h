@@ -85,7 +85,7 @@ public:
     int parsePacket();
     virtual int available();
     virtual int read();
-    virtual size_t read(uint8_t *buffer, size_t size);
+    virtual int read(uint8_t *buffer, size_t size);
     virtual int peek();
     virtual void purge();
 
@@ -117,16 +117,17 @@ public:
 
     int setIdleMode(IdleMode mode);
 
-    void enableWakeup();
-    void disableWakeup();
-
     void onTransmit(void(*callback)(void));
     void onTransmit(Callback callback);
     void onReceive(void(*callback)(void));
     void onReceive(Callback callback);
 
+    void enableWakeup();
+    void disableWakeup();
+
 private:
-    bool              _initialized;
+    bool              _enabled;
+    bool              _wakeup;
     volatile uint8_t  _busy;      // 0 idle, 1 rx, 2 tx, 3 cad
 
     uint8_t           *_tx_data;
@@ -164,7 +165,6 @@ private:
     bool              _afcOn;
     bool              _crcOn;
 
-    bool              _wakeup;
     bool              _implicitHeader;
     uint32_t          _timeout;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2016-2020 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -35,10 +35,13 @@ extern "C" {
 #endif
 
 #if defined(USBCON)
-void USBD_Poll(void) __attribute__((weak));
-void USBD_Poll(void) { };
+stm32l0_uart_t g_Serial1;
+extern const stm32l0_uart_params_t g_Serial1Params;
+#else
+stm32l0_uart_t g_Serial;
+extern const stm32l0_uart_params_t g_SerialParams;
 #endif
-
+  
 stm32l0_spi_t g_SPI;
 extern const stm32l0_spi_params_t g_SPIParams;
 
@@ -49,31 +52,21 @@ extern const stm32l0_sfspi_params_t g_SFSPIParams;
 
 extern const stm32l0_sdspi_params_t g_SDSPIParams;
 
-void HardFault_Handler(void)
-{
-    while (1)
-    {
-#if defined(USBCON)
-	USBD_Poll();
-#endif
-    }
-}
-
 int g_swdStatus = 0;
+
+int g_defaultPolicy = STM32L0_SYSTEM_POLICY_RUN;
+  
+uint32_t g_standbyControl = 0;
 
 void init( void )
 {
-    armv6m_core_initialize();
     stm32l0_system_initialize(_SYSTEM_CORE_CLOCK_, 0, 0, STM32L0_CONFIG_LSECLK, STM32L0_CONFIG_HSECLK, STM32L0_CONFIG_SYSOPT);
 
-    stm32l0_exti_configure(STM32L0_EXTI_IRQ_PRIORITY);
-    stm32l0_rtc_configure(STM32L0_RTC_IRQ_PRIORITY);
     stm32l0_dma_configure(STM32L0_ADC_IRQ_PRIORITY, STM32L0_UART_IRQ_PRIORITY, STM32L0_UART_IRQ_PRIORITY);
-    stm32l0_lptim_configure(STM32L0_LPTIM_IRQ_PRIORITY);
 
 #if defined(STM32L0_CONFIG_PIN_VBUS)
     if (STM32L0_CONFIG_PIN_VBUS != STM32L0_GPIO_PIN_NONE) {
-	stm32l0_gpio_pin_configure(STM32L0_CONFIG_PIN_VBUS, (STM32L0_GPIO_PARK_HIZ | STM32L0_GPIO_PUPD_PULLDOWN | STM32L0_GPIO_OSPEED_LOW | STM32L0_GPIO_OTYPE_PUSHPULL | STM32L0_GPIO_MODE_INPUT));
+        stm32l0_gpio_pin_configure(STM32L0_CONFIG_PIN_VBUS, (STM32L0_GPIO_PARK_HIZ | STM32L0_GPIO_PUPD_PULLDOWN | STM32L0_GPIO_OSPEED_LOW | STM32L0_GPIO_OTYPE_PUSHPULL | STM32L0_GPIO_MODE_INPUT));
     }
 #endif
 
@@ -83,14 +76,14 @@ void init( void )
 
 #if (DOSFS_SDCARD >= 1)
     if (g_SPI.state == STM32L0_SPI_STATE_NONE) {
-	stm32l0_spi_create(&g_SPI, &g_SPIParams);
+        stm32l0_spi_create(&g_SPI, &g_SPIParams);
     }
 
     stm32l0_sdspi_initialize(&g_SPI, &g_SDSPIParams);
 #endif
 #if (DOSFS_SFLASH >= 1)
     if (g_SPI.state == STM32L0_SPI_STATE_NONE) {
-	stm32l0_spi_create(&g_SPI, &g_SPIParams);
+        stm32l0_spi_create(&g_SPI, &g_SPIParams);
     }
 
     stm32l0_sfspi_initialize(&g_SPI, &g_SFSPIParams);

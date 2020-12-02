@@ -84,11 +84,6 @@ static void SX1272ReadFifo( uint8_t *buffer, uint8_t size );
 static void SX1272SetOpMode( uint8_t opMode );
 
 /*!
- * \brief RxSingle timeout timer callback
- */
-static void SX1272LptimCallback( void *context );
-
-/*!
  * \brief Sets the SX1272 in either STANDBY or SLEEP mode
  */
 static void SX1272SetIdle( void );
@@ -172,6 +167,47 @@ static const FskBandwidth_t FskBandwidths[] =
     { 250000, 0x01 },
 };
 
+/*!
+ * Radio driver structure initialization
+ */
+static const struct Radio_s SX1272Radio =
+{
+    SX1272DeInit,
+    SX1272GetStatus,
+    SX1272SetModem,
+    SX1272SetChannel,
+    SX1272IsChannelFree,
+    SX1272SetRxConfig,
+    SX1272SetTxConfig,
+    SX1272CheckRfFrequency,
+    SX1272GetTimeOnAir,
+    SX1272Send,
+    SX1272SetSleep,
+    SX1272SetStby,
+    SX1272SetRx,
+    SX1272StartCad,
+    SX1272SetTxContinuousWave,
+    SX1272ReadRssi,
+    SX1272Write,
+    SX1272Read,
+    SX1272WriteBuffer,
+    SX1272ReadBuffer,
+    SX1272SetMaxPayloadLength,
+    SX1272SetPublicNetwork,
+    SX1272SetModulation,
+    SX1272SetPreambleInverted,
+    SX1272SetSyncWord,
+    SX1272SetAfc,
+    SX1272SetDcFree,
+    SX1272SetCrcType,
+    SX1272SetAddressFiltering,
+    SX1272SetNodeAddress,
+    SX1272SetBroadcastAddress,
+    SX1272SetLnaBoost,
+    SX1272SetIdleMode,
+    SX1272GetWakeupTime
+};
+
 /*
  * Private global variables
  */
@@ -231,6 +267,9 @@ void SX1272Init( const RadioEvents_t *events, uint32_t freq )
     SX1272.Settings.LoRa.MaxPayloadLen = 255;
     SX1272.Settings.LoRa.SyncWord = LORA_MAC_PRIVATE_SYNCWORD;
 
+    stm32l0_lptim_timeout_create(&SX1272.Wakeup);
+    stm32l0_lptim_timeout_create(&SX1272.Timeout);
+    
     // Force switch to init default LoRa Modem settings 
     SX1272SetModem( MODEM_LORA );
 
@@ -250,10 +289,14 @@ void SX1272Init( const RadioEvents_t *events, uint32_t freq )
     SX1272ImageCalibration( freq );
 
     SX1272SetSleep( );
+
+    __Radio = &SX1272Radio;
 }
 
 void SX1272DeInit( void )
 {
+    stm32l0_lptim_timeout_destroy(&SX1272.Timeout);
+    stm32l0_lptim_timeout_destroy(&SX1272.Wakeup);
 }
 
 RadioState_t SX1272GetStatus( void )
@@ -284,6 +327,8 @@ bool SX1272IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh
     int16_t rssi = 0;
     uint32_t carrierSenseTime = 0;
 
+    maxCarrierSenseTime = maxCarrierSenseTime * 1000;
+
     SX1272SetStby( );
 
     SX1272SetModem( modem );
@@ -294,10 +339,10 @@ bool SX1272IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh
 
     SX1272Delay( 1 );
 
-    carrierSenseTime = armv6m_systick_millis( );
+    carrierSenseTime = armv6m_systick_micros( );
 
     // Perform carrier sense for maxCarrierSenseTime
-    while( (uint32_t)( armv6m_systick_millis( ) - carrierSenseTime ) < maxCarrierSenseTime )
+    while( (uint32_t)( armv6m_systick_micros( ) - carrierSenseTime ) < maxCarrierSenseTime )
     {
         rssi = SX1272ReadRssi( );
 
@@ -379,7 +424,7 @@ void SX1272SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
         SX1272.Settings.Fsk.CrcOn = crcOn;
         SX1272.Settings.Fsk.RxContinuous = rxContinuous;
         SX1272.Settings.Fsk.PreambleLen = preambleLen;
-        SX1272.Settings.Fsk.RxSingleTimeout = (rxContinuous ? 0 : (( 8 * symbTimeout * 32768 + ( datarate - 1 ) ) / datarate));
+        SX1272.Settings.Fsk.RxSingleTimeout = (rxContinuous ? 0 : (( 8 * symbTimeout * STM32L0_LPTIM_TIMEOUT_TICKS_PER_SECOND + ( STM32L0_LPTIM_TIMEOUT_TICKS_PER_SECOND - 1 ) ) / datarate));
 
         datarate = ( ( 16 * XTAL_FREQ ) + ( datarate / 2 ) ) / datarate;
         SX1272Write( REG_BITRATEMSB,  ( uint8_t )( datarate >> 12 ) );
@@ -481,10 +526,6 @@ void SX1272SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
                         bool fixLen, bool crcOn, bool freqHopOn,
                         uint8_t hopPeriod, bool iqInverted, uint32_t timeout )
 {
-    uint32_t txTimeout;
-
-    txTimeout = ( timeout * 32768 + 999 ) / 1000;
-
     SX1272SetModem( modem );
 
     SX1272SetRfTxPower( power );
@@ -498,8 +539,8 @@ void SX1272SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
         SX1272.Settings.Fsk.PreambleLen = preambleLen;
         SX1272.Settings.Fsk.FixLen = fixLen;
         SX1272.Settings.Fsk.CrcOn = crcOn;
-        SX1272.Settings.Fsk.TxTimeout = txTimeout;
-        SX1272.Settings.Fsk.TxDoneTimeout = ( 2 * 32768 + ( datarate - 1 ) ) / datarate;
+        SX1272.Settings.Fsk.TxTimeout = stm32l0_lptim_millis_to_ticks(timeout);
+        SX1272.Settings.Fsk.TxDoneTimeout = ( 2 * STM32L0_LPTIM_TIMEOUT_TICKS_PER_SECOND + ( datarate - 1 ) ) / datarate;
 
         fdev = ( ( fdev << 8 ) + ( FREQ_STEP_8 / 2 ) ) / FREQ_STEP_8;
         SX1272Write( REG_FDEVMSB, ( uint8_t )( fdev >> 8 ) );
@@ -524,7 +565,7 @@ void SX1272SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
         SX1272.Settings.LoRa.HopPeriod = hopPeriod;
         SX1272.Settings.LoRa.CrcOn = crcOn;
         SX1272.Settings.LoRa.IqInverted = iqInverted;
-        SX1272.Settings.LoRa.TxTimeout = txTimeout;
+        SX1272.Settings.LoRa.TxTimeout = stm32l0_lptim_millis_to_ticks(timeout);
 
         if( datarate > 12 )
         {
@@ -747,7 +788,8 @@ void SX1272SetSleep( void )
 {
     uint8_t regOpMode;
 
-    stm32l0_lptim_stop();
+    stm32l0_lptim_timeout_stop(&SX1272.Wakeup);
+    stm32l0_lptim_timeout_stop(&SX1272.Timeout);
 
     if( SX1272.DioOn )
     {
@@ -821,7 +863,8 @@ void SX1272SetStby( void )
     uint32_t tcxoTimeout;
     uint8_t  regOpMode;
 
-    stm32l0_lptim_stop();
+    stm32l0_lptim_timeout_stop(&SX1272.Wakeup);
+    stm32l0_lptim_timeout_stop(&SX1272.Timeout);
 
     if( SX1272.DioOn )
     {
@@ -1073,7 +1116,7 @@ void SX1272SetRx( uint32_t timeout )
         SX1272Write( REG_LR_FIFOADDRPTR, 0 );
     }
 
-    SX1272.Settings.RxTimeout = ( timeout * 32768 + 999 ) / 1000;
+    SX1272.Settings.RxTimeout = stm32l0_lptim_millis_to_ticks(timeout);
 
     SX1272Sequence( RF_RX_RUNNING );
 }
@@ -1144,7 +1187,7 @@ void SX1272SetTxContinuousWave( uint32_t freq, int8_t power, uint16_t time )
 
     if( timeout )
     {
-        stm32l0_lptim_start((timeout * 32768 + 999) / 1000, SX1272LptimCallback, SX1272OnTxTimeoutIrq);
+        stm32l0_lptim_timeout_start(&SX1272.Timeout, stm32l0_lptim_millis_to_ticks(timeout), (stm32l0_lptim_callback_t)SX1272OnTxTimeoutIrq);
     }
 
     SX1272Release( );
@@ -1169,7 +1212,7 @@ static void SX1272SetOpMode( uint8_t opMode )
 {
     if( SX1272.OpMode != opMode )
     {
-        SX1272SetAntSw( opMode );
+        SX1272SetAntSw( opMode, SX1272.Settings.Power );
 
         SX1272Write( REG_OPMODE, ( SX1272Read( REG_OPMODE ) & RF_OPMODE_MASK ) | opMode );
         
@@ -1208,16 +1251,6 @@ void SX1272SetModem( RadioModems_t modem )
     }
 
     SX1272Release( );
-}
-
-void SX1272Delay( uint32_t timeout )
-{
-    stm32l0_lptim_start((timeout * 32768 + 999) / 1000, NULL, NULL);
-
-    while (!stm32l0_lptim_done());
-    {
-        __WFE();
-    }
 }
 
 static void SX1272WriteFifo( uint8_t *buffer, uint8_t size )
@@ -1346,16 +1379,12 @@ uint32_t SX1272GetWakeupTime( void )
     return SX1272GetBoardTcxoWakeupTime( ) + RADIO_WAKEUP_TIME;
 }
 
-static void SX1272LptimCallback( void *context )
-{
-    armv6m_pendsv_enqueue((armv6m_pendsv_routine_t)context, NULL, 0);
-}
-
 static void SX1272Sequence( RadioState_t state )
 {
     uint32_t tcxoTimeout;
 
-    stm32l0_lptim_stop();
+    stm32l0_lptim_timeout_stop(&SX1272.Wakeup);
+    stm32l0_lptim_timeout_stop(&SX1272.Timeout);
 
     SX1272.State = state;
 
@@ -1367,7 +1396,7 @@ static void SX1272Sequence( RadioState_t state )
 
         if( tcxoTimeout )
         {
-            stm32l0_lptim_start((tcxoTimeout * 32768 + 999) / 1000, SX1272LptimCallback, SX1272OnTcxoTimeoutIrq);
+            stm32l0_lptim_timeout_start(&SX1272.Wakeup, (tcxoTimeout * STM32L0_LPTIM_TIMEOUT_TICKS_PER_SECOND + 999) / 1000, (stm32l0_lptim_callback_t)SX1272OnTcxoTimeoutIrq);
 
             SX1272Release( );
             
@@ -1386,7 +1415,7 @@ static void SX1272OnTcxoTimeoutIrq( void )
 
     if( !SX1272.OscOn )
     {
-        stm32l0_lptim_start((RADIO_WAKEUP_TIME * 32768 + 999) / 1000, SX1272LptimCallback, SX1272OnOscTimeoutIrq);
+        stm32l0_lptim_timeout_start(&SX1272.Wakeup, (RADIO_WAKEUP_TIME * STM32L0_LPTIM_TIMEOUT_TICKS_PER_SECOND + 999) / 1000, (stm32l0_lptim_callback_t)SX1272OnOscTimeoutIrq);
 
         SX1272Release( );
 
@@ -1411,7 +1440,7 @@ static void SX1272OnOscTimeoutIrq( void )
 
     if ( !SX1272.DioOn )
     {
-        SX1272DioInit( );
+        SX1272DioInit( SX1272.Modem, SX1272.State, SX1272OnDio0Irq, SX1272OnDio1Irq, SX1272OnDio2Irq );
 
         SX1272.DioOn = true;
     }
@@ -1424,26 +1453,17 @@ static void SX1272OnOscTimeoutIrq( void )
         case RF_RX_RUNNING:
             SX1272SetOpMode( RF_OPMODE_RECEIVER );
 
-            if( SX1272.Settings.LoRa.RxContinuous == true )
-            {
-                if( SX1272.Settings.RxTimeout )
-                {
-                    stm32l0_lptim_start(SX1272.Settings.RxTimeout, SX1272LptimCallback, SX1272OnRxTimeoutIrq);
-                }
-            }
-            else
+            if( SX1272.Settings.LoRa.RxContinuous == false )
             {
                 if( SX1272.Settings.Fsk.RxSingleTimeout )
                 {
-                    stm32l0_lptim_start(SX1272.Settings.Fsk.RxSingleTimeout, SX1272LptimCallback, SX1272OnRxSingleTimeoutIrq);
+                    stm32l0_lptim_timeout_start(&SX1272.Wakeup, SX1272.Settings.Fsk.RxSingleTimeout, (stm32l0_lptim_callback_t)SX1272OnRxSingleTimeoutIrq);
                 }
-                else
-                {
-                    if( SX1272.Settings.RxTimeout )
-                    {
-                        stm32l0_lptim_start(SX1272.Settings.RxTimeout, SX1272LptimCallback, SX1272OnRxTimeoutIrq);
-                    }
-                }
+            }
+
+            if( SX1272.Settings.RxTimeout )
+            {
+                stm32l0_lptim_timeout_start(&SX1272.Timeout, SX1272.Settings.RxTimeout, (stm32l0_lptim_callback_t)SX1272OnRxTimeoutIrq);
             }
             break;
         case RF_TX_RUNNING:
@@ -1472,7 +1492,7 @@ static void SX1272OnOscTimeoutIrq( void )
             
             if( SX1272.Settings.Fsk.TxTimeout )
             {
-                stm32l0_lptim_start(SX1272.Settings.Fsk.TxTimeout, SX1272LptimCallback, SX1272OnTxTimeoutIrq);
+                stm32l0_lptim_timeout_start(&SX1272.Timeout, SX1272.Settings.Fsk.TxTimeout, (stm32l0_lptim_callback_t)SX1272OnTxTimeoutIrq);
             }
             break;
         case RF_CAD:
@@ -1496,7 +1516,7 @@ static void SX1272OnOscTimeoutIrq( void )
             
             if( SX1272.Settings.RxTimeout )
             {
-                stm32l0_lptim_start(SX1272.Settings.RxTimeout, SX1272LptimCallback, SX1272OnRxTimeoutIrq);
+                stm32l0_lptim_timeout_start(&SX1272.Timeout, SX1272.Settings.RxTimeout, (stm32l0_lptim_callback_t)SX1272OnRxTimeoutIrq);
             }
             break;
         case RF_TX_RUNNING:
@@ -1507,7 +1527,7 @@ static void SX1272OnOscTimeoutIrq( void )
             
             if( SX1272.Settings.LoRa.TxTimeout )
             {
-                stm32l0_lptim_start(SX1272.Settings.LoRa.TxTimeout, SX1272LptimCallback, SX1272OnTxTimeoutIrq);
+                stm32l0_lptim_timeout_start(&SX1272.Timeout, SX1272.Settings.LoRa.TxTimeout, (stm32l0_lptim_callback_t)SX1272OnTxTimeoutIrq);
             }
             break;
         case RF_CAD:
@@ -1624,7 +1644,7 @@ void SX1272OnDio0Irq( void )
             break;
         case RF_TX_RUNNING:
             // PayloadSent interrupt
-            stm32l0_lptim_start(SX1272.Settings.Fsk.TxDoneTimeout, SX1272LptimCallback, SX1272OnTxDoneTimeoutIrq);
+            stm32l0_lptim_timeout_start(&SX1272.Wakeup, SX1272.Settings.Fsk.TxDoneTimeout, (stm32l0_lptim_callback_t)SX1272OnTxDoneTimeoutIrq);
             break;
         case RF_CAD:
             break;
@@ -1790,8 +1810,6 @@ void SX1272OnDio1Irq( void )
 
 void SX1272OnDio2Irq( void )
 {
-    uint32_t rxSingleTimeout;
-
     if( SX1272.Modem == MODEM_FSK )
     {
         switch( SX1272.State ) {
@@ -1811,30 +1829,9 @@ void SX1272OnDio2Irq( void )
 
             if( SX1272.Settings.Fsk.RxContinuous == false )
             {
-                if( SX1272.Settings.Fsk.RxSingleTimeout )
-                {
-                    rxSingleTimeout = stm32l0_lptim_stop();
-                    
-                    if( SX1272.Settings.RxTimeout )
-                    {
-                        if( SX1272.Settings.RxTimeout > rxSingleTimeout )
-                        {
-                            SX1272.Settings.RxTimeout -= rxSingleTimeout;
-                            
-                            stm32l0_lptim_start(SX1272.Settings.RxTimeout, SX1272LptimCallback, SX1272OnRxTimeoutIrq);
-                        }
-                        else
-                        {
-                            SX1272SetIdle( );
-                            
-                            if( ( SX1272.Events != NULL ) && ( SX1272.Events->RxTimeout != NULL ) )
-                            {
-                                SX1272.Events->RxTimeout( );
-                            }
-                        }
-                    }
-                }
+                stm32l0_lptim_timeout_stop(&SX1272.Wakeup);
             }
+
             SX1272Release( );
             break;
         case RF_TX_RUNNING:

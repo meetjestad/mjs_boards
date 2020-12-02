@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2017-2020 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -33,11 +33,20 @@
 
 #define RESET_POWERON        0
 #define RESET_EXTERNAL       1
-#define RESET_SOFTWARE       2
-#define RESET_WATCHDOG       3
+#define RESET_INTERNAL       2
+#define RESET_SOFTWARE       3
 #define RESET_FIREWALL       4
-#define RESET_OTHER          5
-#define RESET_STANDBY        6
+#define RESET_WATCHDOG       5
+#define RESET_CRASH          6
+#define RESET_STANDBY        7
+
+#define WAKEUP_PIN           0x00000001
+#define WAKEUP_TIMEOUT       0x00000100
+#define WAKEUP_ALARM         0x00000200
+#define WAKEUP_TAMP_1        0x00000400
+#define WAKEUP_TAMP_2        0x00000800
+#define WAKEUP_WATCHDOG      0x00002000
+#define WAKEUP_RESET         0x00004000
 
 #define FLASHSTART           ((uint32_t)(&__FlashBase))
 #define FLASHEND             ((uint32_t)(&__FlashLimit))
@@ -47,19 +56,24 @@ public:
     uint64_t getSerial();
     void getUID(uint32_t uid[3]);
 
-    bool  getVBUS();
     float getVBAT();
     float getVDDA();
     float getTemperature();
 
     uint32_t resetCause();
+    uint32_t wakeupReason();
 
+    bool  setClocks(uint32_t hclk, uint32_t pclk1 = 0, uint32_t pclk2 = 0);
+    void  setClocks(uint32_t &hclk, uint32_t &pclk1, uint32_t &pclk2);
+    
+    void  enablePowerSave();
+    void  disablePowerSave();
     void  wakeup();
-    void  sleep(uint32_t timeout = 0);
-    void  stop(uint32_t timeout = 0);
-    void  standby();
-    void  standby(uint32_t pin);
+    void  sleep(uint32_t timeout = 0xffffffff);
+    void  deepsleep(uint32_t timeout = 0xffffffff);
+    void  standby(uint32_t timeout = 0xffffffff);
     void  reset();
+    void  dfu();
 
     void  swdEnable();
     void  swdDisable();
@@ -69,6 +83,12 @@ public:
 
     bool  flashErase(uint32_t address, uint32_t count);
     bool  flashProgram(uint32_t address, const void *data, uint32_t count);
+
+ public:
+    void  stop(uint32_t timeout = 0xffffffff) __attribute__((deprecated("use STM32L0.deepsleep() instead"))) { deepsleep(timeout); }
+#if defined(USBCON)
+    bool  getVBUS()  __attribute__((deprecated("use USBDevice.attached() instead"))) { return USBDevice.attached(); }
+#endif    
 };
 
 extern STM32L0Class STM32L0;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Thomas Roell.  All rights reserved.
+ * Copyright (c) 2017-2020 Thomas Roell.  All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -32,39 +32,12 @@
 
 uint64_t STM32L0Class::getSerial()
 {
-    uint32_t serial0, serial1, serial2;
-
-    /* This crummy value is what the USB/DFU bootloader uses.
-     */
-
-    serial0 = *((uint32_t*)0x1ff80050);
-    serial1 = *((uint32_t*)0x1ff80054);
-    serial2 = *((uint32_t*)0x1ff80058);
-
-    serial0 += serial2;
-
-    return (((uint64_t)serial0 << 16) | ((uint64_t)serial1 >> 16));
+    return stm32l0_system_serial();
 }
 
 void STM32L0Class::getUID(uint32_t uid[3])
 {
     stm32l0_system_uid(uid);
-}
-
-bool STM32L0Class::getVBUS()
-{
-#if defined(STM32L0_CONFIG_PIN_VBUS)
-    if (STM32L0_CONFIG_PIN_VBUS == STM32L0_GPIO_PIN_NONE) {
-	return false;
-    }
-
-    return !!stm32l0_gpio_pin_read(STM32L0_CONFIG_PIN_VBUS);
-
-#else /* defined(STM32L0_CONFIG_PIN_VBUS */
-
-    return false;
-
-#endif /* defined(STM32L0_CONFIG_PIN_VBUS */
 }
 
 float STM32L0Class::getVBAT()
@@ -114,49 +87,63 @@ uint32_t STM32L0Class::resetCause()
     return stm32l0_system_reset_cause();
 }
 
+uint32_t STM32L0Class::wakeupReason()
+{
+    return stm32l0_system_wakeup_reason();
+}
+
+bool STM32L0Class::setClocks(uint32_t hclk, uint32_t pclk1, uint32_t pclk2)
+{
+    return stm32l0_system_sysclk_configure(hclk, pclk1, pclk2);
+}
+
+void STM32L0Class::setClocks(uint32_t &hclk, uint32_t &pclk1, uint32_t &pclk2)
+{
+    hclk = stm32l0_system_hclk();
+    pclk1 = stm32l0_system_pclk1();
+    pclk2 = stm32l0_system_pclk2();
+}
+
+void STM32L0Class::enablePowerSave()
+{
+    g_defaultPolicy = STM32L0_SYSTEM_POLICY_SLEEP;
+}
+
+void STM32L0Class::disablePowerSave()
+{
+    g_defaultPolicy = STM32L0_SYSTEM_POLICY_RUN;
+}
+
 void STM32L0Class::wakeup()
 {
-    stm32l0_system_wakeup();
+    stm32l0_system_wakeup(STM32L0_SYSTEM_EVENT_APPLICATION);
 }
 
 void STM32L0Class::sleep(uint32_t timeout)
 {
-    stm32l0_system_sleep(STM32L0_SYSTEM_POLICY_SLEEP, timeout);
+    if (g_swdStatus == 0) {
+        stm32l0_system_swd_disable();
+
+        g_swdStatus = 2;
+    }
+
+    stm32l0_system_sleep(STM32L0_SYSTEM_POLICY_SLEEP, STM32L0_SYSTEM_EVENT_APPLICATION, timeout);
 }
 
-void STM32L0Class::stop(uint32_t timeout)
+void STM32L0Class::deepsleep(uint32_t timeout)
 {
     if (g_swdStatus == 0) {
-	stm32l0_system_swd_disable();
+        stm32l0_system_swd_disable();
 
-	g_swdStatus = 2;
+        g_swdStatus = 2;
     }
 
-    stm32l0_system_sleep(STM32L0_SYSTEM_POLICY_STOP, timeout);
+    stm32l0_system_sleep(STM32L0_SYSTEM_POLICY_DEEPSLEEP, STM32L0_SYSTEM_EVENT_APPLICATION, timeout);
 }
 
-void STM32L0Class::standby()
+void STM32L0Class::standby(uint32_t timeout)
 {
-    stm32l0_system_standby(0);
-}
-
-void STM32L0Class::standby(uint32_t pin)
-{
-    uint32_t config;
-
-    if ( (pin >= PINS_COUNT) || !(g_APinDescription[pin].attr & (PIN_ATTR_WKUP1 | PIN_ATTR_WKUP2)))  {
-	return;
-    }
-    
-    if (g_APinDescription[pin].attr & PIN_ATTR_WKUP1) {
-	config = STM32L0_SYSTEM_CONFIG_WKUP1;
-    }
-
-    if (g_APinDescription[pin].attr & PIN_ATTR_WKUP2) {
-	config = STM32L0_SYSTEM_CONFIG_WKUP2;
-    }
-
-    stm32l0_system_standby(config);
+    stm32l0_system_standby(g_standbyControl, timeout);
 }
 
 void STM32L0Class::reset()
@@ -164,21 +151,26 @@ void STM32L0Class::reset()
     stm32l0_system_reset();
 }
 
+void STM32L0Class::dfu()
+{
+    stm32l0_system_dfu();
+}
+
 void STM32L0Class::swdEnable()
 {
     if (g_swdStatus != 3) {
-	stm32l0_system_swd_enable();
+        stm32l0_system_swd_enable();
 
-	g_swdStatus = 1;
+        g_swdStatus = 1;
     }
 }
 
 void STM32L0Class::swdDisable()
 {
     if (g_swdStatus != 3) {
-	stm32l0_system_swd_disable();
+        stm32l0_system_swd_disable();
 
-	g_swdStatus = 2;
+        g_swdStatus = 2;
     }
 }
 
@@ -195,13 +187,13 @@ void STM32L0Class::wdtReset()
 bool STM32L0Class::flashErase(uint32_t address, uint32_t count)
 {
     if (address & 127) {
-	return false;
+        return false;
     }
 
     count = (count + 127) & ~127;
 
     if ((address < FLASHSTART) || ((address + count) > FLASHEND)) {
-	return false;
+        return false;
     }
 
     stm32l0_flash_unlock();
@@ -214,17 +206,17 @@ bool STM32L0Class::flashErase(uint32_t address, uint32_t count)
 bool STM32L0Class::flashProgram(uint32_t address, const void *data, uint32_t count)
 {
     if ((address & 3) || (count & 3)) {
-	return false;
+        return false;
     }
 
     if ((address < FLASHSTART) || ((address + count) > FLASHEND)) {
-	return false;
+        return false;
     }
 
     if (count) {
-	stm32l0_flash_unlock();
-	stm32l0_flash_program(address, (const uint8_t*)data, count);
-	stm32l0_flash_lock();
+        stm32l0_flash_unlock();
+        stm32l0_flash_program(address, (const uint8_t*)data, count);
+        stm32l0_flash_lock();
     }
 
     return true;
