@@ -202,6 +202,10 @@ extern const stm32l0_i2c_params_t g_Wire1Params = {
     },
 };
 
+#if defined(SERIAL_IS_CONFIGURABLE)
+// When the sketch does not set this, let Serial point to USB
+Stream* ConfigurableSerial = &SerialUSB;
+#endif
 
 void initVariant()
 {

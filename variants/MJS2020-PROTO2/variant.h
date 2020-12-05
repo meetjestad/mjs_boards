@@ -218,6 +218,24 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 extern CDC  SerialUSB;
 extern Uart Serial1;
 extern Uart Serial2;
+#if defined(SERIAL_IS_CONFIGURABLE)
+    // This allows reconfiguring Serial at runtime, to allow e.g.
+    // switching between SerialUSB and Serial1 based on whether USB is
+    // connected or not. To ensure that sketches and libraries do not
+    // need to know the difference, this defines a pointer under a
+    // different name, which is then dereferenced by the Serial macro
+    // below (so normal member access with . still works).
+    //
+    // It would seem nice to make Serial reconfigurable by default, but
+    // since the common superclass for SerialUSB and Serial1 is Stream,
+    // which does not have a .begin() method, this would break sketches
+    // that call Serial.begin(). So instead, reconfigurable serial is a
+    // compile-time option, and sketches that need it must call
+    // Serial1.begin() and/or SerialUSB.begin() as appropriate, and can
+    // then assign ReconfigurableSerial as needed.
+    // TODO: ConfigurableSerial? Other name?
+    extern Stream* ConfigurableSerial;
+#endif
 #endif
 
 // These serial port names are intended to allow libraries and architecture-neutral
@@ -236,10 +254,16 @@ extern Uart Serial2;
 // SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
 //                            pins are NOT connected to anything by default.
 #define SERIAL_PORT_USBVIRTUAL      SerialUSB
-#define SERIAL_PORT_MONITOR         SerialUSB
+#define SERIAL_PORT_MONITOR         Serial
 #define SERIAL_PORT_HARDWARE1       Serial1
 #define SERIAL_PORT_HARDWARE2       Serial2
 #define SERIAL_PORT_HARDWARE_OPEN2  Serial1
 
-// Alias Serial to SerialUSB
-#define Serial                      SerialUSB
+// Alias Serial to SerialUSB by default, but allow reconfiguring it
+#if defined(SERIAL_IS_CONFIGURABLE)
+    #define Serial                      (*ConfigurableSerial)
+#elif defined(SERIAL_IS_SERIAL1)
+    #define Serial                      Serial1
+#else
+    #define Serial                      SerialUSB
+#endif

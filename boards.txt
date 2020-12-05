@@ -1,6 +1,7 @@
 menu.usb=USB Type
 menu.speed=CPU Speed
 menu.opt=Optimize
+menu.serial=Serial refers to
 
 ##############################################################
 
@@ -84,7 +85,7 @@ MJS2020-PROTO2.build.pid=0x3320
 MJS2020-PROTO2.build.did=0xffff
 MJS2020-PROTO2.build.usb_manufacturer="KITT Engineering"
 MJS2020-PROTO2.build.usb_product="STM32L0"
-MJS2020-PROTO2.build.extra_flags=-DSTM32L072xx -march=armv6-m -mthumb -mabi=aapcs -mfloat-abi=soft -fsingle-precision-constant {build.usb_flags}
+MJS2020-PROTO2.build.extra_flags=-DSTM32L072xx -march=armv6-m -mthumb -mabi=aapcs -mfloat-abi=soft -fsingle-precision-constant {build.usb_flags} -D{build.serial_is}
 MJS2020-PROTO2.build.ldscript=linker_scripts/STM32L072CZ_FLASH.ld
 MJS2020-PROTO2.build.openocdscript=openocd_scripts/MJS2020-PROTO2.cfg
 MJS2020-PROTO2.build.variant=MJS2020-PROTO2
@@ -117,3 +118,10 @@ MJS2020-PROTO2.menu.opt.o2.build.flags.ldspecs=
 MJS2020-PROTO2.menu.opt.o3=Fastest
 MJS2020-PROTO2.menu.opt.o3.build.flags.optimize=-O3
 MJS2020-PROTO2.menu.opt.o3.build.flags.ldspecs=
+
+MJS2020-PROTO2.menu.serial.serialusb=SerialUSB
+MJS2020-PROTO2.menu.serial.serialusb.build.serial_is=SERIAL_IS_SERIALUSB
+MJS2020-PROTO2.menu.serial.serial1=Serial1 (UART)
+MJS2020-PROTO2.menu.serial.serial1.build.serial_is=SERIAL_IS_SERIAL1
+MJS2020-PROTO2.menu.serial.configurable=Configurable
+MJS2020-PROTO2.menu.serial.configurable.build.serial_is=SERIAL_IS_CONFIGURABLE
