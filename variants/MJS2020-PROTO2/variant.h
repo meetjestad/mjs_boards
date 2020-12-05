@@ -132,6 +132,7 @@ enum {
 #define PIN_LORA_BUSY        (PB2)
 
 #define PIN_BATTERY          (PC4)
+#define PIN_SOLAR            (PC5)
 #define PIN_BOARD_ID         (PB0)
 
 /*
