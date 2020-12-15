@@ -84,8 +84,6 @@ enum {
     PB4 = 12,
     PB3 = 13,
     // These are mapped twice
-    PB7_I2C = 14,
-    PB6_I2C = 15,
     PC4 = 16,
     PC5 = 17,
     /* 18 - 21 are unused? */
@@ -192,8 +190,8 @@ static const uint8_t SCK  = PIN_SPI_SCK;
  */
 #define WIRE_INTERFACES_COUNT 2
 
-#define PIN_WIRE_SDA         (PB7_I2C)
-#define PIN_WIRE_SCL         (PB6_I2C)
+#define PIN_WIRE_SDA         (PB7)
+#define PIN_WIRE_SCL         (PB6)
 
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
