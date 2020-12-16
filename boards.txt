@@ -13,7 +13,8 @@ MJS2020-PROTO2.pid.0=0x3320
 
 MJS2020-PROTO2.upload.tool=stm32l0_dfu
 MJS2020-PROTO2.upload.protocol=dfu
-MJS2020-PROTO2.upload.maximum_size=196608
+# 128k, minus one write-protected 4k sector with factory info
+MJS2020-PROTO2.upload.maximum_size=126976
 MJS2020-PROTO2.upload.maximum_data_size=20480
 MJS2020-PROTO2.upload.use_1200bps_touch=true
 MJS2020-PROTO2.upload.wait_for_upload_port=false
