@@ -1,4 +1,3 @@
-name: Publish tagged releases to JSON file
 on: [push]
 env:
   JSON_BRANCH: master-test
@@ -6,6 +5,7 @@ env:
   TEMPLATE_FILENAME: .github/workflows/platform_template.json
 jobs:
   publish:
+    name: Publish tagged releases to JSON file
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
@@ -36,7 +36,7 @@ jobs:
         # This uses git archive to create the same tarball that github
         # will create on downloads. Note that this does not need the tag
         # to be checked out.
-	ARCHIVE_FILE="$TAG.tar.gz"
+        ARCHIVE_FILE="$TAG.tar.gz"
         git archive --prefix "$REPO-$TAG/" "$TAG" -o "$ARCHIVE_FILE"
 
         echo "TAG=$TAG" >> $GITHUB_ENV
@@ -45,8 +45,8 @@ jobs:
 
     - name: Generate & commit json file
       run: |
-	SHA256=$(shasum -a 256 "$ARCHIVE_FILE")
-	SIZE=$(stat -c "%s" "$ARCHIVE_FILE")
+        SHA256=$(shasum -a 256 "$ARCHIVE_FILE")
+        SIZE=$(stat -c "%s" "$ARCHIVE_FILE")
 
         # Do a HEAD request on the URL to check that it is valid
         if ! curl -I --location --fail "$URL"; then
@@ -54,7 +54,7 @@ jobs:
           exit 1
         fi
 
-	PLATFORM_VERSION=$( \
+        PLATFORM_VERSION=$( \
           git show "$TAG:$TEMPLATE_FILENAME" \
           | sed '/^#/d'
           | jq
@@ -62,8 +62,8 @@ jobs:
             --arg size "$SIZE" \
             --arg checksum "SHA-256:$SHA256" \
             --arg url "$URL" \
-	    --arg archiveFileName "$ARCHIVE_FILE" \
-	   '.version = $version | .size = $size | .checksum = $checksum | .url = $url | .archiveFileName = $archiveFileName' \
+            --arg archiveFileName "$ARCHIVE_FILE" \
+           '.version = $version | .size = $size | .checksum = $checksum | .url = $url | .archiveFileName = $archiveFileName' \
         )
 
         # This uses git show rather than plain cat, so we can overwrite
