@@ -165,6 +165,20 @@ extern const stm32l0_uart_params_t g_Serial1Params = {
 };
 
 
+extern const stm32l0_spi_params_t g_SPI1Params = {
+    STM32L0_SPI_INSTANCE_SPI2,
+    STM32L0_SPI_IRQ_PRIORITY,
+    STM32L0_DMA_CHANNEL_NONE,
+    STM32L0_DMA_CHANNEL_NONE,
+    {
+        STM32L0_GPIO_PIN_PB15_SPI2_MOSI,
+        STM32L0_GPIO_PIN_PB14_SPI2_MISO,
+        STM32L0_GPIO_PIN_PB13_SPI2_SCK,
+        STM32L0_GPIO_PIN_NONE,
+    },
+};
+
+
 extern const stm32l0_spi_params_t g_SPIParams = {
     STM32L0_SPI_INSTANCE_SPI1,
     STM32L0_SPI_IRQ_PRIORITY,
@@ -199,6 +213,17 @@ extern const stm32l0_i2c_params_t g_Wire1Params = {
     {
         STM32L0_GPIO_PIN_PB10_I2C2_SCL,
         STM32L0_GPIO_PIN_PB11_I2C2_SDA,
+    },
+};
+
+extern const stm32l0_i2c_params_t g_Wire2Params = {
+    STM32L0_I2C_INSTANCE_I2C3,
+    STM32L0_I2C_IRQ_PRIORITY,
+    STM32L0_DMA_CHANNEL_NONE,
+    STM32L0_DMA_CHANNEL_NONE,
+    {
+        STM32L0_GPIO_PIN_PC0_I2C3_SCL,
+        STM32L0_GPIO_PIN_PC1_I2C3_SDA,
     },
 };
 

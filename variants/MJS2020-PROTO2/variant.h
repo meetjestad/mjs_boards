@@ -174,11 +174,15 @@ static const uint8_t BUTTON = PIN_BUTTON;
 /*
  * SPI Interfaces
  */
-#define SPI_INTERFACES_COUNT 1
+#define SPI_INTERFACES_COUNT 2
 
 #define PIN_SPI_MISO         (PB4)
 #define PIN_SPI_MOSI         (PB5)
 #define PIN_SPI_SCK          (PB3)
+
+#define PIN_SPI1_MISO        (PB14)
+#define PIN_SPI1_MOSI        (PB15)
+#define PIN_SPI1_SCK         (PB13)
 
 static const uint8_t SS   = 10;
 static const uint8_t MOSI = PIN_SPI_MOSI;
@@ -188,7 +192,7 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 /*
  * Wire Interfaces
  */
-#define WIRE_INTERFACES_COUNT 2
+#define WIRE_INTERFACES_COUNT 3
 
 #define PIN_WIRE_SDA         (PB7)
 #define PIN_WIRE_SCL         (PB6)
@@ -198,6 +202,9 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 
 #define PIN_WIRE1_SDA        (PB11)
 #define PIN_WIRE1_SCL        (PB10)
+
+#define PIN_WIRE2_SDA        (PC1)
+#define PIN_WIRE2_SCL        (PC0)
 
 #define PIN_USB_DM           (PA11)
 #define PIN_USB_DP           (PA12)
