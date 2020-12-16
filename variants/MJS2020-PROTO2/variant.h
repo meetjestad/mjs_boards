@@ -238,8 +238,7 @@ extern Uart Serial2;
     // that call Serial.begin(). So instead, reconfigurable serial is a
     // compile-time option, and sketches that need it must call
     // Serial1.begin() and/or SerialUSB.begin() as appropriate, and can
-    // then assign ReconfigurableSerial as needed.
-    // TODO: ConfigurableSerial? Other name?
+    // then assign ConfigurableSerial as needed.
     extern Stream* ConfigurableSerial;
 #endif
 #endif
