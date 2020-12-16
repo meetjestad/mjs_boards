@@ -1,69 +1,79 @@
 {
-   "packages":[
-      {
-         "name": "meetjestad",
-         "maintainer": "Meet je stad!",
-         "websiteURL": "https://github.com/meetjestad/mjs_boards/",
-         "email": "meedoen@meetjestad.net",
-         "platforms":[
+  "packages": [
+    {
+      "name": "meetjestad",
+      "maintainer": "Meet je stad!",
+      "websiteURL": "https://github.com/meetjestad/mjs_boards/",
+      "email": "meedoen@meetjestad.net",
+      "platforms": [
+        {
+          "name": "Meet je stad! AVR Boards",
+          "architecture": "avr",
+          "version": "1.0.2",
+          "category": "Contributed",
+          "url": "https://github.com/meetjestad/mjs_boards/releases/download/mjs-avr-v1.0.2/mjs_boards.zip",
+          "archiveFileName": "mjs-avr-v1.0.2.zip",
+          "checksum": "SHA-256:40c9e042f90a5490417fa0e4279eade9be3d2f5c2c1f1033f92caa59ea426698",
+          "size": "5255",
+          "boards": [
             {
-               "name": "Meet je stad! AVR Boards",
-               "architecture": "avr",
-               "version": "1.0.2",
-               "category": "Contributed",
-               "url": "https://github.com/meetjestad/mjs_boards/releases/download/mjs-avr-v1.0.2/mjs_boards.zip",
-               "archiveFileName": "mjs-avr-v1.0.2.zip",
-               "checksum": "SHA-256:40c9e042f90a5490417fa0e4279eade9be3d2f5c2c1f1033f92caa59ea426698",
-               "size": "5255",
-               "boards":[
-                  { "name": "MJS meetstation" }
-               ],
-               "toolsDependencies":[]
-            },
-            {
-               "name": "Meet je stad! STM32L0 Boards",
-               "architecture": "stm32l0",
-               "version": "0.4.1",
-               "category": "Contributed",
-               "url": "https://github.com/meetjestad/mjs_boards/archive/mjs-stm32l0-v0.4.1.tar.gz",
-               "archiveFileName": "mjs-stm32l0-v0.4.1.tar.gz",
-               "checksum": "SHA-256:61e48b7e59c6b734a79a58471ce974b43fa13fc1ccda8b2803cab3c3ef5317fc",
-               "size": "10443694",
-               "boards":[
-                  { "name": "MJS2020 PROTO1" },
-                  { "name": "MJS2020 PROTO2" }
-               ],
-	       "toolsDependencies": [
-                  {
-                     "packager": "arduino",
-                     "name": "arm-none-eabi-gcc",
-                     "version": "4.8.3-2014q1"
-                  }
-               ]
-            },
-            {
-               "name": "Meet je stad! STM32L0 Boards",
-               "architecture": "stm32l0",
-               "version": "0.4.2",
-               "category": "Contributed",
-               "url": "https://github.com/meetjestad/mjs_boards/archive/mjs-stm32l0-v0.4.2.tar.gz",
-               "archiveFileName": "mjs-stm32l0-v0.4.2.tar.gz",
-               "checksum": "SHA-256:54224d3c9f86889df45f1e66c6742768ddd00166bfe22b180675228c0b1e45eb",
-               "size": "10253669",
-               "boards":[
-                  { "name": "MJS2020 PROTO1" },
-                  { "name": "MJS2020 PROTO2" }
-               ],
-	       "toolsDependencies": [
-                  {
-                     "packager": "arduino",
-                     "name": "arm-none-eabi-gcc",
-                     "version": "7-2017q4"
-                  }
-               ]
+              "name": "MJS meetstation"
             }
-         ],
-         "tools":[]
-      }
-   ]
+          ],
+          "toolsDependencies": []
+        },
+        {
+          "name": "Meet je stad! STM32L0 Boards",
+          "architecture": "stm32l0",
+          "version": "0.4.1",
+          "category": "Contributed",
+          "url": "https://github.com/meetjestad/mjs_boards/archive/mjs-stm32l0-v0.4.1.tar.gz",
+          "archiveFileName": "mjs-stm32l0-v0.4.1.tar.gz",
+          "checksum": "SHA-256:61e48b7e59c6b734a79a58471ce974b43fa13fc1ccda8b2803cab3c3ef5317fc",
+          "size": "10443694",
+          "boards": [
+            {
+              "name": "MJS2020 PROTO1"
+            },
+            {
+              "name": "MJS2020 PROTO2"
+            }
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "arduino",
+              "name": "arm-none-eabi-gcc",
+              "version": "4.8.3-2014q1"
+            }
+          ]
+        },
+        {
+          "name": "Meet je stad! STM32L0 Boards",
+          "architecture": "stm32l0",
+          "version": "0.4.2",
+          "category": "Contributed",
+          "url": "https://github.com/meetjestad/mjs_boards/archive/mjs-stm32l0-v0.4.2.tar.gz",
+          "archiveFileName": "mjs-stm32l0-v0.4.2.tar.gz",
+          "checksum": "SHA-256:54224d3c9f86889df45f1e66c6742768ddd00166bfe22b180675228c0b1e45eb",
+          "size": "10253669",
+          "boards": [
+            {
+              "name": "MJS2020 PROTO1"
+            },
+            {
+              "name": "MJS2020 PROTO2"
+            }
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "arduino",
+              "name": "arm-none-eabi-gcc",
+              "version": "7-2017q4"
+            }
+          ]
+        }
+      ],
+      "tools": []
+    }
+  ]
 }
