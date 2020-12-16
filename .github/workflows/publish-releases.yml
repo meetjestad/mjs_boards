@@ -1,8 +1,5 @@
 name: Publish tagged releases to JSON file
-on:
-  push:
-    tags:
-    - '*'
+on: [push]
 env:
   JSON_BRANCH: master-test
   JSON_FILENAME: package_meetjestad.net_index.json
