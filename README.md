@@ -13,6 +13,19 @@ To set this up, you can use the Arduino IDE boards manager:
  - Close the preferences, and open Tools -> Board -> Boards Manager...
  - Find the "Meet je stad! AVR Boards" in the list, and click Install
 
+Different branches in this repository contain files for boards based on
+different architectures, but all can be installed using the above URL.
+
+Publishing a new release
+========================
+After making changes to this repository, a new release can be created
+by:
+ - Creating a new commit, bumping the version number in `platform.txt`.
+ - Pushing a tag to that commit.
+
+After this, a Github Action will automatically handle updating the above
+mentioned json file (in the master branch of this repository).
+
 License
 =======
 The files in this repository are distributed under various licenses.

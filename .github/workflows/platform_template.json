@@ -1,0 +1,22 @@
+# This file is used by a github action to automatically publish
+# releases. This file contains just a single version of the platform, to
+# be added into "packages.platforms" array in an existing json file.
+# Properties like version, download url and checksum are derived and
+# filled in automatically.
+{
+   "name": "Meet je stad! AVR Boards",
+   "architecture": "avr",
+   "version": "",
+   "category": "Contributed",
+   "url": "",
+   "archiveFileName": "",
+   "checksum": "",
+   "size": "",
+   "help": {
+      "online": "https://github.com/meetjestad/mjs_boards/tree/avr"
+   },
+   "boards":[
+      { "name": "MJS meetstation" }
+   ],
+   "toolsDependencies":[]
+}
