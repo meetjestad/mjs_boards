@@ -2,7 +2,12 @@
 
 ## What is it ?
 
-ArduinoCore-stm32l0 is targeted at ultra low power scenarios, sensor hubs, with LoRaWAN connectivity.
+ArduinoCore-stm32l0 is targeted at ultra low power scenarios, sensor
+hubs, with LoRaWAN connectivity.
+
+Different branches in this repository contain files for boards based on
+different architectures, but all can be installed using the JSON URL in
+the instructions below.
 
 ## Supported boards
  * MJS2020-PROTO1
@@ -98,3 +103,7 @@ integration into the Arduindo IDE not working. In this case plugin the
 board and toggle the RESET button while the BOOT0 pins are shorted (e.g.
 using a jumper). This forces the board into bootloader mode and should
 allow a single upload to succeed.
+
+## License
+The files in this repository are distributed under various licenses.
+Each file lists the license that applies to it.
