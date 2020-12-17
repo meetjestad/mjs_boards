@@ -1,0 +1,28 @@
+# This file is used by a github action to automatically publish
+# releases. This file contains just a single version of the platform, to
+# be added into "packages.platforms" array in an existing json file.
+# Properties like version, download url and checksum are derived and
+# filled in automatically.
+{
+  "name": "Meet je stad! STM32L0 Boards",
+  "architecture": "stm32l0",
+  "version": "",
+  "category": "Contributed",
+  "url": "",
+  "archiveFileName": "",
+  "checksum": "",
+  "size": "",
+  "help": {
+     "online": "https://github.com/meetjestad/mjs_boards/tree/stm32l0"
+  },
+  "boards":[
+     { "name": "MJS2020 PROTO2" }
+  ],
+  "toolsDependencies": [
+    {
+      "packager": "arduino",
+      "name": "arm-none-eabi-gcc",
+      "version": "7-2017q4"
+    }
+  ]
+}

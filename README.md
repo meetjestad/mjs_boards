@@ -104,6 +104,15 @@ board and toggle the RESET button while the BOOT0 pins are shorted (e.g.
 using a jumper). This forces the board into bootloader mode and should
 allow a single upload to succeed.
 
+## Publishing a new release
+After making changes to this repository, a new release can be created
+by:
+ - Creating a new commit, bumping the version number in `platform.txt`.
+ - Pushing a tag to that commit.
+
+After this, a Github Action will automatically handle updating the above
+mentioned json file (in the master branch of this repository).
+
 ## License
 The files in this repository are distributed under various licenses.
 Each file lists the license that applies to it.
