@@ -71,6 +71,25 @@
               "version": "7-2017q4"
             }
           ]
+        },
+        {
+          "name": "Meet je stad! AVR Boards",
+          "architecture": "avr",
+          "version": "1.0.3",
+          "category": "Contributed",
+          "url": "https://github.com/meetjestad/mjs_boards/archive/mjs-avr-v1.0.3.tar.gz",
+          "archiveFileName": "mjs_boards-mjs-avr-v1.0.3.tar.gz",
+          "checksum": "SHA-256:9bdb2416ba7ee18359672cb1d4da8a8d9dff72f1b74858ee46a665269a6e6d82",
+          "size": "7759",
+          "help": {
+            "online": "https://github.com/meetjestad/mjs_boards/tree/avr"
+          },
+          "boards": [
+            {
+              "name": "MJS meetstation"
+            }
+          ],
+          "toolsDependencies": []
         }
       ],
       "tools": []
