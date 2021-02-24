@@ -129,21 +129,21 @@ enum {
 enum {
     // Digital pins
     PIN_D0                = PB6,
-    PIN_WIRE_SCL          = PB6,
+    PIN_SCL               = PB6,
     PIN_D1                = PB7,
-    PIN_WIRE_SDA          = PB7,
+    PIN_SDA               = PB7,
     PIN_D2                = PB13,
-    PIN_SPI1_SCK          = PB13,
+    PIN_SCK1              = PB13,
     PIN_D3                = PB12,
     PIN_D4                = PB10,
-    PIN_WIRE1_SCL         = PB10,
+    PIN_SCL1              = PB10,
     PIN_D5                = PB11,
-    PIN_WIRE1_SDA         = PB11,
+    PIN_SDA1              = PB11,
 
     PIN_D6                = PB15,
-    PIN_SPI1_MOSI         = PB15,
+    PIN_MOSI1             = PB15,
     PIN_D7                = PB14,
-    PIN_SPI1_MISO         = PB14,
+    PIN_MISO1             = PB14,
     PIN_D8                = PB8,
     PIN_D9                = PB9,
 
@@ -170,9 +170,9 @@ enum {
     PIN_A4                = PA0,
     PIN_SERIAL3_TX        = PA0,
     PIN_A5                = PC0,
-    PIN_WIRE2_SCL         = PC0,
+    PIN_SCL2              = PC0,
     PIN_A6                = PC1,
-    PIN_WIRE2_SDA         = PC1,
+    PIN_SDA2              = PC1,
 
 
     // Battery pins
@@ -194,9 +194,9 @@ enum {
     PIN_LORA_BUSY         = PB2,
 
     // SPI
-    PIN_SPI_MISO          = PB4,
-    PIN_SPI_MOSI          = PB5,
-    PIN_SPI_SCK           = PB3,
+    PIN_MISO              = PB4,
+    PIN_MOSI              = PB5,
+    PIN_SCK               = PB3,
 
     PIN_SERIAL1_RX        = PA10,
     PIN_SERIAL1_TX        = PA9,
@@ -222,12 +222,12 @@ enum {
     DAC0 = PIN_DAC0,
     DAC1 = PIN_DAC1,
 
-    MOSI = PIN_SPI_MOSI,
-    MISO = PIN_SPI_MISO,
-    SCK  = PIN_SPI_SCK,
+    MOSI = PIN_MOSI,
+    MISO = PIN_MISO,
+    SCK  = PIN_SCK,
 
-    SDA = PIN_WIRE_SDA,
-    SCL = PIN_WIRE_SCL,
+    SDA = PIN_SDA,
+    SCL = PIN_SCL,
 };
 
 // These are macros, since portable sketches tend to #ifdef for these
