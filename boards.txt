@@ -70,3 +70,69 @@ MJS2020-PROTO2.menu.serial.serial1=Serial1 (UART)
 MJS2020-PROTO2.menu.serial.serial1.build.serial_is=SERIAL_IS_SERIAL1
 MJS2020-PROTO2.menu.serial.configurable=Configurable
 MJS2020-PROTO2.menu.serial.configurable.build.serial_is=SERIAL_IS_CONFIGURABLE
+
+# MJS2020-PROTO3
+# ---------------------------------------
+MJS2020-PROTO3.name=MJS2020-PROTO3
+MJS2020-PROTO3.vid.0=0x1209
+MJS2020-PROTO3.pid.0=0x3320
+
+MJS2020-PROTO3.upload.tool=stm32l0_dfu
+MJS2020-PROTO3.upload.protocol=dfu
+# 192k, minus one write-protected 4k sector with factory info
+MJS2020-PROTO3.upload.maximum_size=196608
+MJS2020-PROTO3.upload.maximum_data_size=20480
+MJS2020-PROTO3.upload.use_1200bps_touch=true
+MJS2020-PROTO3.upload.wait_for_upload_port=false
+MJS2020-PROTO3.upload.native_usb=false
+
+MJS2020-PROTO3.build.mcu=cortex-m0plus
+MJS2020-PROTO3.build.f_cpu=32000000L
+MJS2020-PROTO3.build.board=MJS2020_PROTO3
+MJS2020-PROTO3.build.arch=stm32l0
+MJS2020-PROTO3.build.core=arduino
+MJS2020-PROTO3.build.vid=0x1209
+MJS2020-PROTO3.build.pid=0x3320
+MJS2020-PROTO3.build.did=0xffff
+MJS2020-PROTO3.build.usb_manufacturer="KITT Engineering"
+MJS2020-PROTO3.build.usb_product="STM32L0"
+MJS2020-PROTO3.build.extra_flags=-DSTM32L072xx -march=armv6-m -mthumb -mabi=aapcs -mfloat-abi=soft -fsingle-precision-constant {build.usb_flags} -D{build.serial_is}
+MJS2020-PROTO3.build.ldscript=linker_scripts/STM32L072CZ_FLASH.ld
+MJS2020-PROTO3.build.openocdscript=openocd_scripts/MJS2020-PROTO3.cfg
+MJS2020-PROTO3.build.variant=MJS2020-PROTO3
+MJS2020-PROTO3.build.variant_system_libs="-L{runtime.platform.path}/system/STM32L0xx/Lib" "-L{runtime.platform.path}/system/CMSIS/Lib" -lstm32l072xx -larm_cortexM0l_math
+MJS2020-PROTO3.build.variant_system_include="-I{runtime.platform.path}/system/CMSIS/Include" "-I{runtime.platform.path}/system/CMSIS/Device/ST/STM32L0xx/Include" "-I{runtime.platform.path}/system/STM32L0xx/Include" 
+
+MJS2020-PROTO3.menu.usb.cdc=Serial
+MJS2020-PROTO3.menu.usb.cdc.build.usb_type=USB_TYPE_CDC
+MJS2020-PROTO3.menu.usb.cdc_hid=Serial + Keyboard + Mouse
+MJS2020-PROTO3.menu.usb.cdc_hid.build.usb_type=USB_TYPE_CDC_HID
+MJS2020-PROTO3.menu.usb.none=No USB
+MJS2020-PROTO3.menu.usb.none.build.usb_type=USB_TYPE_NONE
+
+MJS2020-PROTO3.menu.speed.32=32 MHz
+MJS2020-PROTO3.menu.speed.32.build.f_cpu=32000000L
+MJS2020-PROTO3.menu.speed.16=16 MHz (No USB)
+MJS2020-PROTO3.menu.speed.16.build.f_cpu=16000000L
+MJS2020-PROTO3.menu.speed.4=4.2 MHz (No USB)
+MJS2020-PROTO3.menu.speed.4.build.f_cpu=4200000L
+
+MJS2020-PROTO3.menu.opt.os=Smallest Code
+MJS2020-PROTO3.menu.opt.os.build.flags.optimize=-Os
+MJS2020-PROTO3.menu.opt.os.build.flags.ldspecs=--specs=nano.specs
+MJS2020-PROTO3.menu.opt.o1=Fast
+MJS2020-PROTO3.menu.opt.o1.build.flags.optimize=-O1
+MJS2020-PROTO3.menu.opt.o1.build.flags.ldspecs=
+MJS2020-PROTO3.menu.opt.o2=Faster
+MJS2020-PROTO3.menu.opt.o2.build.flags.optimize=-O2
+MJS2020-PROTO3.menu.opt.o2.build.flags.ldspecs=
+MJS2020-PROTO3.menu.opt.o3=Fastest
+MJS2020-PROTO3.menu.opt.o3.build.flags.optimize=-O3
+MJS2020-PROTO3.menu.opt.o3.build.flags.ldspecs=
+
+MJS2020-PROTO3.menu.serial.serialusb=SerialUSB
+MJS2020-PROTO3.menu.serial.serialusb.build.serial_is=SERIAL_IS_SERIALUSB
+MJS2020-PROTO3.menu.serial.serial1=Serial1 (UART)
+MJS2020-PROTO3.menu.serial.serial1.build.serial_is=SERIAL_IS_SERIAL1
+MJS2020-PROTO3.menu.serial.configurable=Configurable
+MJS2020-PROTO3.menu.serial.configurable.build.serial_is=SERIAL_IS_CONFIGURABLE
