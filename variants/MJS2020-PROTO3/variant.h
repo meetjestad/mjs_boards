@@ -93,9 +93,9 @@ enum {
     PC4  = 19,
     PC5  = 20,
     PA7  = 21,
-    PC7  = 22,
-    PC8  = 23,
-    PC6  = 24,
+    PC6  = 22,
+    PC7  = 23,
+    PC8  = 24,
     PC11 = 25,
     PA8  = 26,
     PC12 = 27,
@@ -145,8 +145,8 @@ enum {
     PIN_A9                = PA0,
 
     // LEDs
-    PIN_LED_RED           = PC7,
-    PIN_LED_GREEN         = PC8,
+    PIN_LED_RED           = PC8,
+    PIN_LED_GREEN         = PC7,
     PIN_LED_BLUE          = PC6,
 
     // Regulator enable pins
@@ -195,18 +195,23 @@ enum {
     PIN_SCL2              = PC0,
     PIN_SDA2              = PC1,
 
-    PIN_SERIAL1_RX        = PA10,
-    PIN_SERIAL1_TX        = PA9,
+    PIN_RX1               = PA10,
+    PIN_TX1               = PA9,
 
-    PIN_SERIAL2_RX        = PA3,
-    PIN_SERIAL2_TX        = PA2,
+    PIN_RX2               = PA3,
+    PIN_TX2               = PA2,
 
-    PIN_SERIAL3_RX        = PA1,
-    PIN_SERIAL3_TX        = PC10,
+    PIN_RX3               = PA1,
+    PIN_TX3               = PC10,
+
+    // These are mislabeled on the silkscreen because they are USART4,
+    // but Serial3
+    PIN_RX4               = PIN_RX3,
+    PIN_TX4               = PIN_TX3,
 
     // SWD
     PIN_SWDIO             = PA13,
-    PIN_SWDCLK            = PA14,
+    PIN_SWCLK             = PA14,
 };
 
 // Define even shorter names for some pins (these are names commonly
