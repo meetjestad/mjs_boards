@@ -162,7 +162,7 @@ extern const stm32l0_uart_params_t g_Serial1Params = {
     STM32L0_UART_INSTANCE_USART1,
     STM32L0_UART_IRQ_PRIORITY,
     STM32L0_DMA_CHANNEL_DMA1_CH3_USART1_RX,
-    STM32L0_DMA_CHANNEL_NONE,
+    STM32L0_DMA_CHANNEL_DMA1_CH2_USART1_TX,
     &stm32l0_usart1_rx_fifo[0],
     sizeof(stm32l0_usart1_rx_fifo),
     {
