@@ -11,7 +11,9 @@ To set this up, you can use the Arduino IDE boards manager:
  - In the "Additional board manager URLs", add the following url:
    `https://github.com/meetjestad/mjs_boards/raw/master/package_meetjestad.net_index.json`
  - Close the preferences, and open Tools -> Board -> Boards Manager...
- - Find the "Meet je stad! AVR Boards" in the list, and click Install
+ - Find the "Meet je stad! AVR Boards" (for the original board) or "Meet
+   je stad! STM32L0 Boards" (for the MJS2020 board) in the list, and
+   click Install
 
 License
 =======
