@@ -140,6 +140,31 @@
               "version": "7-2017q4"
             }
           ]
+        },
+        {
+          "name": "Meet je stad! STM32L0 Boards",
+          "architecture": "stm32l0",
+          "version": "0.4.5",
+          "category": "Contributed",
+          "url": "https://github.com/meetjestad/mjs_boards/archive/mjs-stm32l0-v0.4.5.tar.gz",
+          "archiveFileName": "mjs_boards-mjs-stm32l0-v0.4.5.tar.gz",
+          "checksum": "SHA-256:58a745f7ced24a0b06bf10a618dd10f9a0333b71833f2ca0867bd280355e45fa",
+          "size": "10264484",
+          "help": {
+            "online": "https://github.com/meetjestad/mjs_boards/tree/stm32l0"
+          },
+          "boards": [
+            {
+              "name": "MJS2020 PROTO2"
+            }
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "arduino",
+              "name": "arm-none-eabi-gcc",
+              "version": "7-2017q4"
+            }
+          ]
         }
       ],
       "tools": []
