@@ -28,6 +28,7 @@
 
 #include "Arduino.h"
 #include "wiring_private.h"
+#include "stm32l0xx.h"
 
 enum {
     PWM_INSTANCE_TIM2,
@@ -279,5 +280,12 @@ Stream* ConfigurableSerial = &SerialUSB;
 
 void initVariant()
 {
+    // The board uses the ABS06-127-32.768KHZ-7 crystal. According to ST
+    // AN2867 ("Oscillator design guide for STM8AF/AL/S, STM32 MCUs and
+    // MPUs"), this crystal has a gmcrit around 0.7477 μA/V. This means
+    // configuring medium low drive strength, which works for crystals
+    // up to 0.75 μA/V gmcrit.
+    RCC->CSR |= (RCC_CSR_LSEDRV_0 << RCC_CSR_LSEDRV_Pos); // DRV_0 == 0x1 == MEDIUM LOW
+
     //CMWX1ZZABZ_Initialize(STM32L0_GPIO_PIN_PH1, STM32L0_GPIO_PIN_NONE);
 }
