@@ -26,7 +26,15 @@ the instructions below.
 
 #### OS Specific Setup
 
-##### Linux
+##### Linux - easy way
+
+Install the `dfu-util` package. On at least Debian and Ubuntu, this
+installs the right `udev` rules to set up the right permissions for
+STM32 devices.
+
+    sudo apt install dfu-util
+
+##### Linux - manual way
 
  1. Download [49-meetjestad.rules](drivers/linux/49-meetjestad.rules).
     This file configures udev to assign the right permissions to the
